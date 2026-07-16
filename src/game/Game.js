@@ -12,7 +12,7 @@ import { WORDS } from "../data/words.js";
 export default class Game {
 
     constructor() {
-    this.active = false;
+
     this.canvas = document.createElement("canvas");
     this.ctx = this.canvas.getContext("2d");
 
@@ -110,57 +110,75 @@ this.input = new Input(this);
     }
 }
 
-    layout(){
+    layout() {
 
-        const margin =
-            Math.max(
-                20,
-                this.width*0.03
-            );
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
 
-        const basketWidth =
-            Math.min(
-                320,
-                this.width*0.22
-            );
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
 
-        const basketHeight =
-            Math.min(
-                110,
-                this.height*0.12
-            );
+    //---------------------------------
+    // Basket Responsive
+    //---------------------------------
 
-        this.leftBasket.resize(
+    const basketWidth = Math.min(
 
-            margin,
+        this.width * 0.32,
 
-            this.height-
-            basketHeight-
-            margin,
+        360
 
-            basketWidth,
+    );
 
-            basketHeight
+    const basketHeight = Math.max(
 
-        );
+        this.height * 0.10,
 
-        this.rightBasket.resize(
+        90
 
-            this.width-
-            basketWidth-
-            margin,
+    );
 
-            this.height-
-            basketHeight-
-            margin,
+    const margin = Math.max(
 
-            basketWidth,
+        20,
 
-            basketHeight
+        this.width * 0.03
 
-        );
+    );
 
-    }
+    const bottom = Math.max(
+
+        18,
+
+        this.height * 0.025
+
+    );
+
+    this.leftBasket.resize(
+
+        margin,
+
+        this.height - basketHeight - bottom,
+
+        basketWidth,
+
+        basketHeight
+
+    );
+
+    this.rightBasket.resize(
+
+        this.width - basketWidth - margin,
+
+        this.height - basketHeight - bottom,
+
+        basketWidth,
+
+        basketHeight
+
+    );
+
+}
         createObjects(){
 
     this.leftBasket = new Basket(

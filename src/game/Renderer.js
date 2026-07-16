@@ -35,105 +35,106 @@ export default class Renderer {
 
     }
 
-    //---------------------------------
-    // ระหว่างเล่น
-    //---------------------------------
-
     drawGame() {
 
         const g = this.game;
         const ctx = g.ctx;
 
-        // พื้นหลัง
         ctx.fillStyle = "#87CEEB";
-        ctx.fillRect(0, 0, g.width, g.height);
+        ctx.fillRect(0,0,g.width,g.height);
 
-        // พื้นหญ้า
-        ctx.fillStyle = "#7ED957";
+        ctx.fillStyle="#7ED957";
         ctx.fillRect(
             0,
-            g.height - 110,
+            g.height-110,
             g.width,
             110
         );
 
-        // ตะกร้า
         g.leftBasket.draw(ctx);
         g.rightBasket.draw(ctx);
 
-        // ผลไม้
-        for (const fruit of g.fruits) {
+        for(const fruit of g.fruits){
 
-            fruit.draw(ctx);
+            if(fruit.active){
+
+                fruit.draw(ctx);
+
+            }
 
         }
 
-        // เอฟเฟกต์
-        for (const effect of g.effects) {
+        for(const effect of g.effects){
 
-            effect.update();
             effect.draw(ctx);
 
         }
 
-        // คะแนน + เวลา
         g.score.draw(ctx);
         g.timer.draw(ctx);
 
     }
 
-    //---------------------------------
-    // หน้าเริ่มเกม
-    //---------------------------------
+    drawStart(){
 
-    drawStart() {
+        const g=this.game;
+        const ctx=g.ctx;
 
-        const g = this.game;
-        const ctx = g.ctx;
+        ctx.fillStyle="#87CEEB";
+        ctx.fillRect(0,0,g.width,g.height);
 
-        ctx.fillStyle = "#87CEEB";
-        ctx.fillRect(0, 0, g.width, g.height);
-
-        ctx.fillStyle = "#7ED957";
+        ctx.fillStyle="#7ED957";
         ctx.fillRect(
             0,
-            g.height - 110,
+            g.height-110,
             g.width,
             110
         );
 
-        ctx.textAlign = "center";
+        ctx.textAlign="center";
 
-        ctx.fillStyle = "#2E7D32";
-        ctx.font = "bold 56px Arial";
+        ctx.fillStyle="#2E7D32";
+
+        ctx.font=`bold ${
+            Math.max(
+                34,
+                Math.min(
+                    g.width*0.055,
+                    70
+                )
+            )
+        }px Arial`;
 
         ctx.fillText(
             "🍎 เกมแยกคำประวิสรรชนีย์ 🍎",
-            g.width / 2,
+            g.width/2,
             140
         );
 
-        ctx.font = "36px Arial";
+        ctx.font=`${
+            Math.max(
+                22,
+                Math.min(
+                    g.width*0.03,
+                    40
+                )
+            )
+        }px Arial`;
 
         ctx.fillText(
             "คลิกเพื่อเริ่มเกม",
-            g.width / 2,
+            g.width/2,
             240
         );
 
     }
 
-    //---------------------------------
-    // จบเกม
-    //---------------------------------
+    drawGameOver(){
 
-    drawGameOver() {
+        const g=this.game;
+        const ctx=g.ctx;
 
-        const g = this.game;
-        const ctx = g.ctx;
-
-        // พื้นหลังมืด
-        ctx.fillStyle = "rgba(0,0,0,.65)";
+        ctx.fillStyle="rgba(0,0,0,.65)";
         ctx.fillRect(
             0,
             0,
@@ -141,99 +142,172 @@ export default class Renderer {
             g.height
         );
 
-        // คำนวณ Accuracy
-        const total =
-            g.score.correct + g.score.wrong;
+        ctx.textAlign="center";
+        ctx.textBaseline="middle";
+        ctx.fillStyle="white";
 
-        const accuracy =
-            total === 0
-                ? 0
-                : Math.round(
-                    g.score.correct /
-                    total * 100
-                );
-
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        //---------------------------------
-        // หัวข้อ
-        //---------------------------------
-
-        ctx.fillStyle = "white";
-        ctx.font = "bold 60px Arial";
+        ctx.font=`bold ${
+            Math.max(
+                38,
+                Math.min(
+                    g.width*0.06,
+                    72
+                )
+            )
+        }px Arial`;
 
         ctx.fillText(
             "🏆 จบเกม",
-            g.width / 2,
-            g.height / 2 - 120
+            g.width/2,
+            g.height/2-150
         );
 
-        //---------------------------------
-        // สถิติ
-        //---------------------------------
+        this.drawStatistics(ctx);
 
-        ctx.font = "32px Arial";
+        this.drawRestartButton(ctx);
+
+    }
+
+    drawStatistics(ctx){
+
+        const g=this.game;
+
+        const total=
+            g.score.correct+
+            g.score.wrong;
+
+        const accuracy=
+            total===0
+            ?0
+            :Math.round(
+                g.score.correct/
+                total*100
+            );
+
+        const textSize=Math.max(
+            20,
+            Math.min(
+                g.width*0.028,
+                36
+            )
+        );
+
+        const line=textSize+18;
+
+        const startY=
+            g.height/2-40;
+
+        ctx.font=`${textSize}px Arial`;
+        ctx.fillStyle="white";
 
         ctx.fillText(
             `⭐ คะแนน : ${g.score.value}`,
-            g.width / 2,
-            g.height / 2 - 40
+            g.width/2,
+            startY
         );
 
         ctx.fillText(
             `✅ ตอบถูก : ${g.score.correct}`,
-            g.width / 2,
-            g.height / 2 + 10
+            g.width/2,
+            startY+line
         );
 
         ctx.fillText(
             `❌ ตอบผิด : ${g.score.wrong}`,
-            g.width / 2,
-            g.height / 2 + 60
+            g.width/2,
+            startY+line*2
         );
 
         ctx.fillText(
             `🎯 ความแม่นยำ : ${accuracy}%`,
-            g.width / 2,
-            g.height / 2 + 110
+            g.width/2,
+            startY+line*3
         );
 
-        //---------------------------------
-        // ปุ่มเล่นใหม่
-        //---------------------------------
+    }
 
-        g.restartButton = {
+    drawRestartButton(ctx){
 
-            x: g.width / 2 - 120,
-            y: g.height / 2 + 170,
-            width: 240,
-            height: 65
+        const g=this.game;
+
+        const buttonWidth=Math.min(
+            260,
+            g.width*0.35
+        );
+
+        const buttonHeight=Math.max(
+            55,
+            g.height*0.08
+        );
+
+        g.restartButton={
+
+            x:g.width/2-buttonWidth/2,
+
+            y:g.height/2+120,
+
+            width:buttonWidth,
+
+            height:buttonHeight
 
         };
 
-        ctx.fillStyle = "#4CAF50";
+        ctx.save();
+
+        ctx.shadowColor="rgba(0,0,0,.3)";
+        ctx.shadowBlur=12;
+
+        ctx.fillStyle="#4CAF50";
 
         ctx.beginPath();
 
         ctx.roundRect(
+
             g.restartButton.x,
+
             g.restartButton.y,
+
             g.restartButton.width,
+
             g.restartButton.height,
-            16
+
+            18
+
         );
 
         ctx.fill();
 
-        ctx.fillStyle = "white";
-        ctx.font = "bold 30px Arial";
+        ctx.shadowBlur=0;
+
+        ctx.lineWidth=2;
+        ctx.strokeStyle="white";
+        ctx.stroke();
+
+        ctx.fillStyle="white";
+
+        ctx.font=`bold ${
+            Math.max(
+                20,
+                buttonHeight*0.42
+            )
+        }px Arial`;
+
+        ctx.textAlign="center";
+        ctx.textBaseline="middle";
 
         ctx.fillText(
+
             "🔄 เล่นใหม่",
-            g.width / 2,
-            g.restartButton.y + 33
+
+            g.restartButton.x+
+            g.restartButton.width/2,
+
+            g.restartButton.y+
+            g.restartButton.height/2
+
         );
+
+        ctx.restore();
 
     }
 

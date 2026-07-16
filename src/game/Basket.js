@@ -1,54 +1,55 @@
 export default class Basket {
 
-    constructor(x, y, width, height, text, color) {
+    constructor(x, y, w, h, text, color) {
 
         this.x = x;
         this.y = y;
-
-        this.width = width;
-        this.height = height;
+        this.width = w;
+        this.height = h;
 
         this.text = text;
         this.color = color;
 
-        this.highlight = 0;
+        this.flashAlpha = 0;
 
     }
 
-    resize(x, y, width, height) {
+    resize(x, y, w, h) {
 
         this.x = x;
         this.y = y;
-
-        this.width = width;
-        this.height = height;
-
-    }
-
-    update() {
-
-        this.highlight *= 0.92;
+        this.width = w;
+        this.height = h;
 
     }
 
     flash() {
 
-        this.highlight = 1;
+        this.flashAlpha = 1;
+
+    }
+
+    update() {
+
+        if (this.flashAlpha > 0) {
+
+            this.flashAlpha -= 0.05;
+
+        }
 
     }
 
     contains(fruit) {
 
-        const centerX = fruit.x + fruit.size / 2;
-        const bottomY = fruit.y + fruit.size;
+        const cx = fruit.x + fruit.size / 2;
+        const cy = fruit.y + fruit.size / 2;
 
         return (
 
-            centerX >= this.x &&
-            centerX <= this.x + this.width &&
-
-            bottomY >= this.y &&
-            bottomY <= this.y + this.height
+            cx >= this.x &&
+            cx <= this.x + this.width &&
+            cy >= this.y &&
+            cy <= this.y + this.height
 
         );
 
@@ -58,128 +59,119 @@ export default class Basket {
 
         this.update();
 
+        //----------------------------------
+        // Responsive
+        //----------------------------------
+
+        const radius = Math.min(
+            22,
+            this.height * 0.25
+        );
+
+        const fontSize = Math.max(
+            16,
+            Math.min(
+                this.width * 0.085,
+                30
+            )
+        );
+
+        const iconSize = fontSize * 0.9;
+
+        const padding = this.width * 0.08;
+
+        //----------------------------------
+        // Shadow
+        //----------------------------------
+
         ctx.save();
 
-        //------------------------------------
-        // Shadow
-        //------------------------------------
+        ctx.shadowColor = "rgba(0,0,0,.25)";
+        ctx.shadowBlur = 10;
 
-        ctx.shadowColor = "rgba(0,0,0,.35)";
-        ctx.shadowBlur = 18;
-        ctx.shadowOffsetY = 6;
+        //----------------------------------
+        // Background
+        //----------------------------------
 
-        //------------------------------------
-        // Gradient
-        //------------------------------------
-
-        const gradient = ctx.createLinearGradient(
-
-            this.x,
-            this.y,
-
-            this.x,
-            this.y + this.height
-
-        );
-
-        gradient.addColorStop(
-            0,
-            this.color
-        );
-
-        gradient.addColorStop(
-            1,
-            "#222"
-        );
-
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = this.color;
 
         ctx.beginPath();
 
         ctx.roundRect(
 
             this.x,
-
             this.y,
-
             this.width,
-
             this.height,
-
-            20
+            radius
 
         );
 
         ctx.fill();
 
-        //------------------------------------
-        // Highlight
-        //------------------------------------
-
-        if (this.highlight > 0.01) {
-
-            ctx.fillStyle =
-                `rgba(255,255,255,${
-                    this.highlight * 0.45
-                })`;
-
-            ctx.beginPath();
-
-            ctx.roundRect(
-
-                this.x,
-
-                this.y,
-
-                this.width,
-
-                this.height,
-
-                20
-
-            );
-
-            ctx.fill();
-
-        }
-
-        //------------------------------------
+        //----------------------------------
         // Border
-        //------------------------------------
+        //----------------------------------
 
         ctx.shadowBlur = 0;
 
-        ctx.lineWidth = Math.max(
-            2,
-            this.width * 0.02
-        );
+        ctx.lineWidth = 4;
 
         ctx.strokeStyle = "white";
 
         ctx.stroke();
 
-        //------------------------------------
-        // Text
-        //------------------------------------
+        //----------------------------------
+        // Flash
+        //----------------------------------
 
-        const fontSize = Math.max(
+        if (this.flashAlpha > 0) {
 
-            18,
+            ctx.fillStyle =
+                `rgba(255,255,255,${this.flashAlpha * .4})`;
 
-            Math.min(
+            ctx.fill();
 
-                this.width * 0.13,
+        }
 
-                34
+        //----------------------------------
+        // Icons
+        //----------------------------------
 
-            )
+        ctx.font = `${iconSize}px Arial`;
+
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(
+
+            "🧺",
+
+            this.x + padding,
+
+            this.y + this.height / 2
 
         );
 
+        ctx.textAlign = "right";
+
+        ctx.fillText(
+
+            "🍎",
+
+            this.x + this.width - padding,
+
+            this.y + this.height / 2
+
+        );
+
+        //----------------------------------
+        // Text
+        //----------------------------------
+
         ctx.fillStyle = "white";
 
-        ctx.font =
-            `bold ${fontSize}px Arial`;
+        ctx.font = `bold ${fontSize}px Arial`;
 
         ctx.textAlign = "center";
 
@@ -189,36 +181,7 @@ export default class Basket {
 
             this.x + this.width / 2,
 
-            this.y +
-            this.height / 2 +
-            fontSize * 0.35
-
-        );
-
-        //------------------------------------
-        // Decorative icons
-        //------------------------------------
-
-        ctx.font =
-            `${fontSize * 0.9}px Arial`;
-
-        ctx.fillText(
-
-            "🧺",
-
-            this.x + 28,
-
-            this.y + this.height / 2 + 8
-
-        );
-
-        ctx.fillText(
-
-            "🍎",
-
-            this.x + this.width - 28,
-
-            this.y + this.height / 2 + 8
+            this.y + this.height / 2
 
         );
 

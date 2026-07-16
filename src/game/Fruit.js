@@ -7,7 +7,13 @@ export default class Fruit {
 
         this.game = game;
 
-        this.size = 80;
+        this.size = Math.max(
+    60,
+    Math.min(
+        this.game.width * 0.07,
+        100
+    )
+);
 
         this.dragging = false;
 
@@ -49,8 +55,20 @@ export default class Fruit {
 this.floatTime = Math.random() * Math.PI * 2;
 
 this.floatOffset = Math.random() * Math.PI * 2;
-this.speed = 2 + Math.random() * 2;
+this.speed =
 
+    this.game.height * 0.0035
+
+    +
+
+    Math.random() * 2;
+this.size = Math.max(
+    60,
+    Math.min(
+        this.game.width * 0.07,
+        100
+    )
+);
         const margin = 100;
 
 if (this.game.fruits) {
@@ -61,14 +79,17 @@ if (this.game.fruits) {
 
         ok = true;
 
+        const topArea = this.game.height * 0.15;
+        const playArea = this.game.height * 0.45;
+
         this.x =
             margin +
             Math.random() *
             (this.game.width - margin * 2 - this.size);
 
         this.y =
-            120 +
-            Math.random() * 220;
+    topArea +
+    Math.random() * playArea;
 
         for (const fruit of this.game.fruits) {
 
@@ -89,6 +110,8 @@ if (this.game.fruits) {
     }
 
 } else {
+    const topArea = this.game.height * 0.15;
+    const playArea = this.game.height * 0.45;
 
     this.x =
         margin +
@@ -96,8 +119,8 @@ if (this.game.fruits) {
         (this.game.width - margin * 2 - this.size);
 
     this.y =
-        120 +
-        Math.random() * 220;
+    topArea +
+    Math.random() * playArea;
 
 }
 
