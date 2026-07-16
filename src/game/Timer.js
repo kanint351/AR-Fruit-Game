@@ -1,16 +1,18 @@
 export default class Timer {
 
-    constructor(seconds = 60) {
+    constructor(game, seconds = 60) {
 
-        this.startTime = seconds;
+    this.game = game;
 
-        this.time = seconds;
+    this.startTime = seconds;
 
-        this.running = false;
+    this.time = seconds;
 
-        this.lastTick = 0;
+    this.running = false;
 
-    }
+    this.lastTick = 0;
+
+}
 
     start() {
 
@@ -66,25 +68,38 @@ export default class Timer {
 
         const margin = Math.max(
             20,
-            window.innerWidth * 0.02
+            this.game.width * 0.02
         );
 
         const fontSize = Math.max(
             24,
             Math.min(
-                window.innerWidth * 0.03,
+                this.game.width * 0.03,
                 42
             )
         );
 
-        const boxWidth = Math.max(
-            220,
-            window.innerWidth * 0.18
-        );
+        const boxWidth = Math.min(
 
-        const boxHeight = this.time <= 10
-        ? fontSize + 60
-        : fontSize + 26;
+    320,
+
+    Math.max(
+
+        180,
+
+        this.game.width * 0.22
+
+    )
+
+);
+
+        const boxHeight = Math.max(
+
+    54,
+
+    fontSize + 24
+
+);
 
         ctx.save();
 
@@ -111,7 +126,7 @@ export default class Timer {
 
         ctx.roundRect(
 
-            window.innerWidth - boxWidth - margin,
+            this.game.width - boxWidth - margin,
 
             margin,
 
@@ -151,7 +166,7 @@ export default class Timer {
 
             `⏰ ${this.time} วินาที`,
 
-            window.innerWidth -
+            this.game.width -
             boxWidth -
             margin +
             18,
@@ -181,7 +196,7 @@ ctx.textAlign = "center";
 
 ctx.fillText(
     "รีบหน่อย!",
-    window.innerWidth - boxWidth / 2 - margin,
+    this.game.width - boxWidth / 2 - margin,
     margin + fontSize + 30
 );
 

@@ -43,13 +43,28 @@ export default class Renderer {
         ctx.fillStyle = "#87CEEB";
         ctx.fillRect(0,0,g.width,g.height);
 
-        ctx.fillStyle="#7ED957";
-        ctx.fillRect(
-            0,
-            g.height-110,
-            g.width,
-            110
-        );
+        //---------------------------------
+// พื้นหญ้า Responsive
+//---------------------------------
+
+const grassHeight = Math.max(
+    80,
+    g.height * 0.12
+);
+
+ctx.fillStyle = "#7ED957";
+
+ctx.fillRect(
+
+    0,
+
+    g.height - grassHeight,
+
+    g.width,
+
+    grassHeight
+
+);
 
         g.leftBasket.draw(ctx);
         g.rightBasket.draw(ctx);

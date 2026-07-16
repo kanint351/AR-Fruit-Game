@@ -35,8 +35,8 @@ export default class Game {
     this.dragFruit = null;
     this.ui = null;
 
-    this.score = new Score();
-    this.timer = new Timer(60);
+    this.score = new Score(this);
+    this.timer = new Timer(this, 60);
 
     this.effects = [];
 

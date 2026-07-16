@@ -1,6 +1,7 @@
 export default class Score {
 
-    constructor() {
+    constructor(game) {
+    this.game = game;
     this.value = 0;
 
     this.correct = 0;
@@ -59,23 +60,38 @@ miss() {
 
         const margin = Math.max(
             20,
-            window.innerWidth * 0.02
+            this.game.width * 0.02
         );
 
         const fontSize = Math.max(
             24,
             Math.min(
-                window.innerWidth * 0.03,
+                this.game.width * 0.03,
                 42
             )
         );
 
-        const boxWidth = Math.max(
-            220,
-            window.innerWidth * 0.18
-        );
+        const boxWidth = Math.min(
 
-        const boxHeight = fontSize + 26;
+    320,
+
+    Math.max(
+
+        180,
+
+        this.game.width * 0.22
+
+    )
+
+);
+
+        const boxHeight = Math.max(
+
+    54,
+
+    fontSize + 24
+
+);
 
         // Shadow
         ctx.save();
