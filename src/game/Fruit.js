@@ -1,113 +1,242 @@
-import { WORDS } from "../data/words.js";
+import {WORDS} from "../data/words.js";
 
 export default class Fruit {
 
-    constructor(canvas) {
+    constructor(game) {
+        this.active = false;
 
-        this.canvas = canvas;
-        this.size = 64;
+        this.game = game;
+
+        this.size = 80;
 
         this.dragging = false;
 
-        this.floatOffset = Math.random() * Math.PI * 2;
-        this.floatTime = 0;
+        this.rotation = 0;
 
-        this.reset();
+        this.floatTime = Math.random() * Math.PI * 2;
+
+        this.floatOffset = Math.random() * Math.PI * 2;
+
+        this.glow = 10;
+        this.x = -200;
+        this.y = -200;
+
+        this.correct = false;
+        this.word = "";
+        this.emoji = "";
+        
 
     }
+
+    //-----------------------------------
+    // สุ่มผลไม้ใหม่
+    //-----------------------------------
 
     reset() {
 
         const item =
-            WORDS[Math.floor(Math.random() * WORDS.length)];
+            WORDS[
+                Math.floor(
+                    Math.random() * WORDS.length
+                )
+            ];
 
         this.word = item.word;
-        this.correct = item.correct;
         this.emoji = item.emoji;
+        this.correct = item.correct;
+        this.dragging = false;
+
+this.floatTime = Math.random() * Math.PI * 2;
+
+this.floatOffset = Math.random() * Math.PI * 2;
+this.speed = 2 + Math.random() * 2;
+
+        const margin = 100;
+
+if (this.game.fruits) {
+
+    let ok = false;
+
+    while (!ok) {
+
+        ok = true;
 
         this.x =
-            Math.random() * (this.canvas.width - 200) + 80;
+            margin +
+            Math.random() *
+            (this.game.width - margin * 2 - this.size);
 
         this.y =
-            -Math.random() * 500 - 50;
+            120 +
+            Math.random() * 220;
 
-        this.speed =
-            2 + Math.random() * 2;
+        for (const fruit of this.game.fruits) {
 
-        this.floatTime = 0;
-        this.floatOffset = Math.random() * Math.PI * 2;
+            if (fruit === this) continue;
 
-    }
+            const dx = this.x - fruit.x;
+            const dy = this.y - fruit.y;
 
-    update() {
+            if (Math.sqrt(dx * dx + dy * dy) < 120) {
 
-        if (!this.dragging) {
+                ok = false;
+                break;
 
-            this.y += this.speed;
-            this.floatTime += 0.08;
-            this.glow = Math.sin(this.floatTime * 3) * 8;
-
-            if (this.y > this.canvas.height) {
-                this.reset();
             }
 
         }
 
     }
 
-    isInside(px, py) {
+} else {
+
+    this.x =
+        margin +
+        Math.random() *
+        (this.game.width - margin * 2 - this.size);
+
+    this.y =
+        120 +
+        Math.random() * 220;
+
+}
+
+this.rotation =
+    (Math.random() - 0.5) * 0.4;
+
+    }
+
+    //-----------------------------------
+    // ตรวจว่าคลิกโดนไหม
+    //-----------------------------------
+
+    isInside(x, y) {
 
         return (
 
-            px >= this.x &&
-            px <= this.x + this.size &&
-
-            py >= this.y &&
-            py <= this.y + this.size
+            x >= this.x &&
+            x <= this.x + this.size &&
+            y >= this.y &&
+            y <= this.y + this.size
 
         );
 
     }
 
+    //-----------------------------------
+    // Update
+    //-----------------------------------
+
+    update() {
+        if (!this.active) return;
+        // ลอยเบา ๆ
+    this.floatTime += 0.05;
+
+    // ถ้าไม่ได้ถูกลาก ให้ตกลงมา
+    if (!this.dragging) {
+
+        this.y += this.speed;
+
+    }
+
+    // หลุดจอด้านล่าง
+    if (this.y > this.game.height + this.size) {
+
+        this.active = false;
+
+    }
+
+
+
+    }
+        //-----------------------------------
+    // Draw
+    //-----------------------------------
+
     draw(ctx) {
+        if (!this.active) return;
 
         const floatY =
-            Math.sin(this.floatTime + this.floatOffset) * 8;
-            ctx.save();
+            Math.sin(
+                this.floatTime +
+                this.floatOffset
+            ) * 8;
 
-if (this.dragging) {
+        //---------------------------------
+        // วาดผลไม้
+        //---------------------------------
 
-    ctx.shadowColor = "#FFD700";
-    ctx.shadowBlur = this.glow + 20;
+        ctx.save();
 
-} else {
+        ctx.translate(
+            this.x + this.size / 2,
+            this.y + this.size / 2 + floatY
+        );
 
-    ctx.shadowColor = "#FFFFFF";
-    ctx.shadowBlur = this.glow;
+        ctx.rotate(this.rotation);
 
-}
+        if (this.dragging) {
 
-        // Emoji
+            ctx.shadowColor = "#FFD700";
+            ctx.shadowBlur = 28;
+
+        } else {
+
+            ctx.shadowColor = "#FFFFFF";
+            ctx.shadowBlur = this.glow;
+
+        }
+
         ctx.font = `${this.size}px Arial`;
+
         ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
 
         ctx.fillText(
             this.emoji,
-            this.x + this.size / 2,
-            this.y + floatY + 50
+            0,
+            0
         );
 
-        // คำ
+        ctx.restore();
+
+        //---------------------------------
+        // วาดข้อความ (ไม่หมุน)
+        //---------------------------------
+
+        ctx.save();
+
+        ctx.shadowBlur = 0;
+
         ctx.fillStyle = "#222";
-        ctx.font = "bold 22px Arial";
+
+        const textSize = Math.max(
+            18,
+            Math.min(
+                this.size * 0.34,
+                28
+            )
+        );
+
+        ctx.font =
+            `bold ${textSize}px Arial`;
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
 
         ctx.fillText(
+
             this.word,
+
             this.x + this.size / 2,
-            this.y + floatY + 86
+
+            this.y +
+            this.size +
+            floatY +
+            8
+
         );
 
-        ctx.textAlign = "left";
         ctx.restore();
 
     }
