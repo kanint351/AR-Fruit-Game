@@ -88,6 +88,54 @@ ctx.fillRect(
         g.score.draw(ctx);
         g.timer.draw(ctx);
         g.lives.draw(ctx);
+        if (g.score.combo >= 3) {
+
+    ctx.save();
+
+    const fontSize = Math.max(
+        28,
+        Math.min(g.width * 0.04, 54)
+    );
+
+    ctx.font = `bold ${fontSize}px Arial`;
+    ctx.textAlign = "center";
+    ctx.shadowColor = "#FF9800";
+ctx.shadowBlur = 15;
+
+ctx.fillStyle = "#FFD54F";
+ctx.strokeStyle = "#ffffff";
+ctx.lineWidth = 3;
+
+
+
+
+
+    let text = `🔥 COMBO x${g.score.combo}`;
+
+    if (g.score.combo >= 10) {
+
+        text = `👑 PERFECT x${g.score.combo}`;
+
+    } else if (g.score.combo >= 5) {
+
+        text = `⚡ GREAT x${g.score.combo}`;
+
+    }
+    ctx.strokeText(
+    text,
+    g.width / 2,
+    70
+);
+
+    ctx.fillText(
+        text,
+        g.width / 2,
+        70
+    );
+
+    ctx.restore();
+
+}
 
     }
 
@@ -221,27 +269,41 @@ this.drawRestartButton(ctx, bottomY);
             g.width/2,
             startY
         );
+        ctx.fillText(
+
+    `🏆 คะแนนสูงสุด : ${g.score.highScore}`,
+
+    g.width / 2,
+
+    startY + line
+
+);
+    ctx.fillText(
+    `🔥 Combo สูงสุด : ${g.score.maxCombo}`,
+    g.width / 2,
+    startY + line * 2
+);
 
         ctx.fillText(
             `✅ ตอบถูก : ${g.score.correct}`,
             g.width/2,
-            startY+line
+            startY + line*3
         );
 
         ctx.fillText(
             `❌ ตอบผิด : ${g.score.wrong}`,
             g.width/2,
-            startY+line*2
+            startY+line*4
         );
 
         ctx.fillText(
             `🎯 ความแม่นยำ : ${accuracy}%`,
             g.width/2,
-            startY+line*3
+            startY+line*5
         );
 
         // ส่งตำแหน่งล่างสุดกลับไป
-        return startY + line * 3;
+        return startY + line * 4;
 
     }
 
@@ -263,7 +325,7 @@ this.drawRestartButton(ctx, bottomY);
 
             x:g.width/2-buttonWidth/2,
 
-            y: bottomY + 55,
+            y: bottomY + 70,
 
             width:buttonWidth,
 

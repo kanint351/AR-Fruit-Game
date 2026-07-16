@@ -146,12 +146,15 @@ spawnFruit() {
 
     gameOver() {
 
-        const g = this.game;
+    const g = this.game;
 
-        g.gameOver = true;
+    g.gameOver = true;
 
-        g.timer.stop();
+    g.timer.stop();
 
-    }
+    // บันทึกคะแนนสูงสุด
+    g.score.saveHighScore();
+
+}
 
 }

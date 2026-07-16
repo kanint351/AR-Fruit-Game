@@ -7,31 +7,26 @@ export default class Score {
     this.correct = 0;
 
     this.wrong = 0;
+    this.combo = 0;
+    this.maxCombo = 0;
 
         
 
-        this.best = Number(
-            localStorage.getItem("bestScore") || 0
-        );
+        this.highScore =
+    Number(
+        localStorage.getItem("highScore")
+    ) || 0;
+        
 
     }
 
     add(point = 1) {
 
-        this.value += point;
+    this.value += point;
 
-        if (this.value > this.best) {
+    this.correct++;
 
-            this.best = this.value;
-
-            localStorage.setItem(
-                "bestScore",
-                this.best
-            );
-
-        }
-
-    }
+}
 
     reset() {
 
@@ -41,11 +36,35 @@ export default class Score {
         this.correct = 0;
 
         this.wrong = 0;
+        this.combo = 0;
+        this.maxCombo = 0;
 
     }
-    add() {
+    add(point = 1) {
 
-    this.value++;
+    this.combo++;
+
+    if (this.combo > this.maxCombo) {
+
+        this.maxCombo = this.combo;
+
+    }
+
+    if (this.combo >= 10) {
+
+        point = 5;
+
+    } else if (this.combo >= 5) {
+
+        point = 3;
+
+    } else if (this.combo >= 3) {
+
+        point = 2;
+
+    }
+
+    this.value += point;
 
     this.correct++;
 
@@ -53,7 +72,25 @@ export default class Score {
 
 miss() {
 
+    this.combo = 0;
+
     this.wrong++;
+
+    
+
+}
+saveHighScore() {
+
+    if (this.value > this.highScore) {
+
+        this.highScore = this.value;
+
+        localStorage.setItem(
+            "highScore",
+            this.highScore
+        );
+
+    }
 
 }
     draw(ctx) {

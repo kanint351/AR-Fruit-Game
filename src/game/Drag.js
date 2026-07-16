@@ -53,6 +53,8 @@ export default class Drag {
         else {
 
     g.lives.lose();
+    // รีเซ็ต Combo และนับตอบผิด
+    g.score.miss();
 
     this.spawnEffect(
 
