@@ -27,6 +27,7 @@ export default class GameLogic {
 
         g.timer.reset(60);
         g.timer.start();
+        g.lives.reset();
         this.spawnTimer = performance.now();
         for (const fruit of g.fruits) {
             fruit.active = false;

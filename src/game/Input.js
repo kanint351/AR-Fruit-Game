@@ -175,11 +175,9 @@ if (g.gameOver) {
     }
 
 }
-        if (!g.started) {
+        if (!this.game.started) {
 
-            g.logic.start();
-
-            return;
+            this.game.startGame();
 
         }
 

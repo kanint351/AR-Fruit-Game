@@ -8,6 +8,8 @@ import Drag from "./Drag.js";
 import GameLogic from "./GameLogic.js";
 import UI from "./UI.js";
 import { WORDS } from "../data/words.js";
+import Lives from "./Lives.js";
+import { enterFullscreen } from "./Fullscreen.js";
 
 export default class Game {
 
@@ -37,6 +39,8 @@ export default class Game {
 
     this.score = new Score(this);
     this.timer = new Timer(this, 60);
+    this.lives = new Lives(this);
+    
 
     this.effects = [];
 
@@ -53,6 +57,10 @@ this.drag = new Drag(this);
 this.logic = new GameLogic(this);
 
 this.input = new Input(this);
+
+
+
+
 
     this.bindResize();
 
@@ -211,7 +219,13 @@ this.input = new Input(this);
     }
     
 }
+startGame() {
 
+    enterFullscreen();
+
+    this.logic.start();
+
+}
 loop(){
 
     this.logic.update();

@@ -51,15 +51,28 @@ export default class Drag {
 
         // ตอบผิด
         else {
-            g.score.miss();
-            this.spawnEffect(
-                fruit.x + fruit.size / 2,
-                fruit.y + fruit.size / 2,
-                "#F44336"
-            );
-            fruit.active = false;
 
-        }
+    g.lives.lose();
+
+    this.spawnEffect(
+
+        fruit.x + fruit.size / 2,
+
+        fruit.y + fruit.size / 2,
+
+        "#F44336"
+
+    );
+
+    fruit.active = false;
+
+    if (g.lives.isDead()) {
+
+        g.logic.gameOver();
+
+    }
+
+}
 
         fruit.dragging = false;
         

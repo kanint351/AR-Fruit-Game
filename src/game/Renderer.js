@@ -87,6 +87,7 @@ ctx.fillRect(
 
         g.score.draw(ctx);
         g.timer.draw(ctx);
+        g.lives.draw(ctx);
 
     }
 
@@ -177,9 +178,9 @@ ctx.fillRect(
             g.height/2-150
         );
 
-        this.drawStatistics(ctx);
+        const bottomY = this.drawStatistics(ctx);
 
-        this.drawRestartButton(ctx);
+this.drawRestartButton(ctx, bottomY);
 
     }
 
@@ -239,9 +240,12 @@ ctx.fillRect(
             startY+line*3
         );
 
+        // ส่งตำแหน่งล่างสุดกลับไป
+        return startY + line * 3;
+
     }
 
-    drawRestartButton(ctx){
+    drawRestartButton(ctx, bottomY){
 
         const g=this.game;
 
@@ -259,7 +263,7 @@ ctx.fillRect(
 
             x:g.width/2-buttonWidth/2,
 
-            y:g.height/2+120,
+            y: bottomY + 55,
 
             width:buttonWidth,
 
