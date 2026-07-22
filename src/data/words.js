@@ -1,190 +1,130 @@
 export const WORDS = [
 
     // ==========================
-    // ประวิสรรชนีย์ (true)
+    // ประวิสรรชนีย์
     // ==========================
 
     {
-        word: "กะทิ",
-        emoji: "🥥",
-        correct: true
-    },
-
-    {
-        word: "กะเพรา",
-        emoji: "🌿",
-        correct: true
-    },
-
-    {
         word: "มะม่วง",
-        emoji: "🥭",
+        image: "mango",
         correct: true
     },
 
     {
         word: "มะนาว",
-        emoji: "🍋",
+        image: "lime",
         correct: true
     },
 
     {
         word: "มะละกอ",
-        emoji: "🍈",
+        image: "papaya",
         correct: true
     },
 
     {
         word: "มะขาม",
-        emoji: "🫘",
+        image: "tamarind",
         correct: true
     },
 
     {
         word: "มะระ",
-        emoji: "🥒",
+        image: "bittermelon",
         correct: true
     },
 
     {
         word: "มะพร้าว",
-        emoji: "🥥",
-        correct: true
-    },
-
-    {
-        word: "มะเขือ",
-        emoji: "🍆",
+        image: "coconut",
         correct: true
     },
 
     {
         word: "สะตอ",
-        emoji: "🫛",
-        correct: true
-    },
-
-    {
-        word: "ตะไคร้",
-        emoji: "🌱",
-        correct: true
-    },
-
-    {
-        word: "พะโล้",
-        emoji: "🍲",
-        correct: true
-    },
-
-    {
-        word: "กระทะ",
-        emoji: "🍳",
-        correct: true
-    },
-
-    {
-        word: "กระเทียม",
-        emoji: "🧄",
+        image: "stinkbean",
         correct: true
     },
 
     {
         word: "มะยม",
-        emoji: "🫐",
+        image: "gooseberry",
+        correct: true
+    },
+
+    {
+        word: "มะเฟือง",
+        image: "starfruit",
+        correct: true
+    },
+
+    {
+        word: "สับปะรด",
+        image: "pineapple",
         correct: true
     },
 
     // ==========================
-    // ไม่ประวิสรรชนีย์ (false)
+    // ไม่ประวิสรรชนีย์
     // ==========================
 
     {
-        word: "ปลา",
-        emoji: "🐟",
-        correct: false
-    },
-
-    {
-        word: "นม",
-        emoji: "🥛",
-        correct: false
-    },
-
-    {
         word: "แตงโม",
-        emoji: "🍉",
+        image: "watermelon",
         correct: false
     },
 
     {
         word: "ขนุน",
-        emoji: "🍈",
+        image: "jackfruit",
         correct: false
     },
 
     {
         word: "กล้วย",
-        emoji: "🍌",
+        image: "banana",
         correct: false
     },
 
     {
         word: "ลำไย",
-        emoji: "🟤",
+        image: "longan",
         correct: false
     },
 
     {
         word: "ส้ม",
-        emoji: "🍊",
+        image: "orange",
         correct: false
     },
 
     {
         word: "องุ่น",
-        emoji: "🍇",
+        image: "grape",
         correct: false
     },
 
     {
         word: "เงาะ",
-        emoji: "🔴",
+        image: "rambutan",
         correct: false
     },
 
     {
         word: "ทุเรียน",
-        emoji: "🟢",
+        image: "durian",
         correct: false
     },
 
     {
         word: "ฝรั่ง",
-        emoji: "🍏",
+        image: "guava",
         correct: false
     },
 
     {
         word: "ลิ้นจี่",
-        emoji: "🩷",
-        correct: false
-    },
-
-    {
-        word: "ชมพู่",
-        emoji: "🍎",
-        correct: false
-    },
-
-    {
-        word: "ข้าว",
-        emoji: "🍚",
-        correct: false
-    },
-
-    {
-        word: "ไข่",
-        emoji: "🥚",
+        image: "lychee",
         correct: false
     }
 

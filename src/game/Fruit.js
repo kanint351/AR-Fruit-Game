@@ -1,4 +1,5 @@
 import {WORDS} from "../data/words.js";
+import Images from "./Images.js";
 
 export default class Fruit {
 
@@ -29,7 +30,7 @@ export default class Fruit {
 
         this.correct = false;
         this.word = "";
-        this.emoji = "";
+        
         
 
     }
@@ -48,8 +49,8 @@ export default class Fruit {
             ];
 
         this.word = item.word;
-        this.emoji = item.emoji;
         this.correct = item.correct;
+        this.image = Images[item.image];
         this.dragging = false;
 
 this.floatTime = Math.random() * Math.PI * 2;
@@ -57,11 +58,11 @@ this.floatTime = Math.random() * Math.PI * 2;
 this.floatOffset = Math.random() * Math.PI * 2;
 this.speed =
 
-    this.game.height * 0.0035
+    this.game.height * 0.0015
 
     +
 
-    Math.random() * 2;
+    Math.random() * 0.5;
 this.size = Math.max(
     60,
     Math.min(
@@ -177,91 +178,98 @@ this.rotation =
     //-----------------------------------
 
     draw(ctx) {
-        if (!this.active) return;
 
-        const floatY =
-            Math.sin(
-                this.floatTime +
-                this.floatOffset
-            ) * 8;
+    if (!this.active) return;
 
-        //---------------------------------
-        // วาดผลไม้
-        //---------------------------------
+    const floatY =
+        Math.sin(
+            this.floatTime +
+            this.floatOffset
+        ) * 8;
 
-        ctx.save();
+    //---------------------------------
+    // วาดรูปผลไม้
+    //---------------------------------
 
-        ctx.translate(
-            this.x + this.size / 2,
-            this.y + this.size / 2 + floatY
-        );
+    ctx.save();
 
-        ctx.rotate(this.rotation);
+    const drawX = this.x;
+    const drawY = this.y + floatY;
 
-        if (this.dragging) {
+    ctx.translate(
+        drawX + this.size / 2,
+        drawY + this.size / 2
+    );
 
-            ctx.shadowColor = "#FFD700";
-            ctx.shadowBlur = 28;
+    ctx.rotate(this.rotation);
 
-        } else {
+    if (this.dragging) {
 
-            ctx.shadowColor = "#FFFFFF";
-            ctx.shadowBlur = this.glow;
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 28;
 
-        }
+    } else {
 
-        ctx.font = `${this.size}px Arial`;
-
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        ctx.fillText(
-            this.emoji,
-            0,
-            0
-        );
-
-        ctx.restore();
-
-        //---------------------------------
-        // วาดข้อความ (ไม่หมุน)
-        //---------------------------------
-
-        ctx.save();
-
-        ctx.shadowBlur = 0;
-
-        ctx.fillStyle = "#222";
-
-        const textSize = Math.max(
-            18,
-            Math.min(
-                this.size * 0.34,
-                28
-            )
-        );
-
-        ctx.font =
-            `bold ${textSize}px Arial`;
-
-        ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-
-        ctx.fillText(
-
-            this.word,
-
-            this.x + this.size / 2,
-
-            this.y +
-            this.size +
-            floatY +
-            8
-
-        );
-
-        ctx.restore();
+        ctx.shadowColor = "#FFFFFF";
+        ctx.shadowBlur = this.glow;
 
     }
 
+    if (this.image && this.image.complete) {
+
+        ctx.drawImage(
+
+            this.image,
+
+            -this.size / 2,
+
+            -this.size / 2,
+
+            this.size,
+
+            this.size
+
+        );
+
+    }
+
+    ctx.restore();
+
+    //---------------------------------
+    // วาดชื่อผลไม้
+    //---------------------------------
+
+    ctx.save();
+
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = "#222";
+
+    const textSize = Math.max(
+        18,
+        Math.min(
+            this.size * 0.34,
+            28
+        )
+    );
+
+    ctx.font = `bold ${textSize}px Arial`;
+
+    ctx.textAlign = "center";
+
+    ctx.textBaseline = "top";
+
+    ctx.fillText(
+
+        this.word,
+
+        this.x + this.size / 2,
+
+        this.y + this.size + floatY + 8
+
+    );
+
+    ctx.restore();
+
+}
 }
