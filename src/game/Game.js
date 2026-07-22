@@ -24,6 +24,10 @@ export default class Game {
     document.body.style.overflow = "hidden";
     document.body.style.background = "#87CEEB";
 
+    this.canvas.style.display = "block";
+    this.canvas.style.touchAction = "none";
+    this.canvas.style.userSelect = "none";
+
     this.pointer = {
         x: 0,
         y: 0,
@@ -44,11 +48,15 @@ export default class Game {
 
     this.effects = [];
 
-    this.resize();
+this.animationId = null;
 
-    this.createObjects();
+// สร้างตะกร้าก่อน
+this.createObjects();
 
-    this.renderer = new Renderer(this);
+// แล้วค่อยคำนวณขนาดหน้าจอ
+this.resize();
+
+this.renderer = new Renderer(this);
 
 this.ui = new UI(this);
 
@@ -58,15 +66,9 @@ this.logic = new GameLogic(this);
 
 this.input = new Input(this);
 
+this.bindResize();
 
-
-
-
-    this.bindResize();
-
-    requestAnimationFrame(
-        () => this.loop()
-    );
+this.loop();
 
 }
 
@@ -81,92 +83,117 @@ this.input = new Input(this);
 
     }
 
-    resize(){
+    resize() {
 
-        const dpr =
-            window.devicePixelRatio || 1;
-
-        this.width =
-            window.innerWidth;
-
-        this.height =
-            window.innerHeight;
-
-        this.canvas.width =
-            this.width*dpr;
-
-        this.canvas.height =
-            this.height*dpr;
-
-        this.canvas.style.width =
-            this.width+"px";
-
-        this.canvas.style.height =
-            this.height+"px";
-
-        this.ctx.setTransform(
-            dpr,
-            0,
-            0,
-            dpr,
-            0,
-            0
-        );
-
-        if (this.leftBasket && this.rightBasket) {
-        this.layout();
-    }
-}
-
-    layout() {
+    const dpr = Math.min(
+        window.devicePixelRatio || 1,
+        2
+    );
 
     this.width = window.innerWidth;
     this.height = window.innerHeight;
 
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
+    this.canvas.width =
+        Math.floor(this.width * dpr);
 
-    //---------------------------------
-    // Basket Responsive
-    //---------------------------------
+    this.canvas.height =
+        Math.floor(this.height * dpr);
+
+    this.canvas.style.width =
+        this.width + "px";
+
+    this.canvas.style.height =
+        this.height + "px";
+
+    this.ctx.setTransform(
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+    );
+
+    this.ctx.scale(dpr, dpr);
+
+    if (this.leftBasket) {
+
+        this.layout();
+
+    }
+
+    if (this.fruits) {
+
+        const fruitCount =
+            this.width < 600
+                ? 4
+                : this.width < 900
+                ? 5
+                : 6;
+
+        while (
+            this.fruits.length < fruitCount
+        ) {
+
+            this.fruits.push(
+                new Fruit(this)
+            );
+
+        }
+
+        while (
+            this.fruits.length > fruitCount
+        ) {
+
+            this.fruits.pop();
+
+        }
+
+        this.fruits.forEach(fruit => {
+
+            fruit.size = Math.max(
+                65,
+                Math.min(
+                    this.width * 0.08,
+                    110
+                )
+            );
+
+        });
+
+    }
+
+}
+
+    layout() {
 
     const basketWidth = Math.min(
-
         this.width * 0.32,
-
         360
-
     );
 
     const basketHeight = Math.max(
-
         this.height * 0.10,
-
         90
-
     );
 
     const margin = Math.max(
-
         20,
-
         this.width * 0.03
-
     );
 
     const bottom = Math.max(
-
         18,
-
         this.height * 0.025
-
     );
 
     this.leftBasket.resize(
 
         margin,
 
-        this.height - basketHeight - bottom,
+        this.height -
+        basketHeight -
+        bottom,
 
         basketWidth,
 
@@ -176,9 +203,13 @@ this.input = new Input(this);
 
     this.rightBasket.resize(
 
-        this.width - basketWidth - margin,
+        this.width -
+        basketWidth -
+        margin,
 
-        this.height - basketHeight - bottom,
+        this.height -
+        basketHeight -
+        bottom,
 
         basketWidth,
 
@@ -207,16 +238,26 @@ this.input = new Input(this);
         "#e74c3c"
     );
 
-    this.layout();
+    
 
     this.fruits = [];
 
-    for(let i=0;i<6;i++){
+    const width = window.innerWidth;
 
-        this.fruits.push(
-            new Fruit(this)
-        );
-    }
+const fruitCount =
+    width < 600
+        ? 4
+        : width < 900
+        ? 5
+        : 6;
+
+this.fruits = [];
+
+for (let i = 0; i < fruitCount; i++) {
+
+    this.fruits.push(new Fruit(this));
+
+}
     
 }
 startGame() {
@@ -226,17 +267,16 @@ startGame() {
     this.logic.start();
 
 }
-loop(){
+loop() {
 
     this.logic.update();
 
     this.renderer.render();
 
-    requestAnimationFrame(
-        ()=>this.loop()
-    );
+    this.animationId =
+        requestAnimationFrame(
+            () => this.loop()
+        );
 
 }
-
-
 }

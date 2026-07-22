@@ -1,3 +1,5 @@
+import Images from "./Images.js";
+
 export default class UI {
 
     constructor(game) {
@@ -24,20 +26,38 @@ export default class UI {
 
         const g = this.game;
         const ctx = g.ctx;
+        const isMobile = g.width < 768;
 
         ctx.fillStyle = "#87CEEB";
         ctx.fillRect(0, 0, g.width, g.height);
 
         ctx.fillStyle = "#7ED957";
-        ctx.fillRect(
-            0,
-            g.height - 110,
-            g.width,
-            110
-        );
+        const grassHeight = Math.max(
+    90,
+    g.height * 0.11
+);
 
-        const boxWidth = Math.min(850, g.width * 0.82);
-        const boxHeight = Math.min(520, g.height * 0.72);
+ctx.fillRect(
+
+    0,
+
+    g.height - grassHeight,
+
+    g.width,
+
+    grassHeight
+
+);
+
+        const boxWidth = Math.min(
+    g.width * 0.88,
+    900
+);
+
+const boxHeight = Math.min(
+    g.height * 0.75,
+    540
+);
 
         const boxX = (g.width - boxWidth) / 2;
         const boxY = (g.height - boxHeight) / 2;
@@ -62,7 +82,15 @@ export default class UI {
         ctx.textAlign = "center";
 
         ctx.fillStyle = "#2E7D32";
-        ctx.font = `bold ${Math.max(34, boxWidth * 0.07)}px Arial`;
+        const titleSize = Math.max(
+    28,
+    Math.min(
+        boxWidth * 0.06,
+        52
+    )
+);
+
+ctx.font = `bold ${titleSize}px Arial`;
 
         ctx.fillText(
             "🍎 เกมแยกคำประวิสรรชนีย์ 🍎",
@@ -70,17 +98,67 @@ export default class UI {
             boxY + 70
         );
 
-        ctx.font = `${Math.max(46, boxWidth * 0.08)}px Arial`;
+        
 
-        ctx.fillText(
-            "🍎 🍌 🍉 🍇 🥭 🍍",
-            g.width / 2,
-            boxY + 145
+const fruits = [
+    Images.apple,
+    Images.banana,
+    Images.grape,
+    Images.mango,
+    Images.watermelon,
+    Images.orange,
+    Images.pineapple,
+];
+
+const iconSize =
+    isMobile
+        ? 48
+        : 68;
+
+const spacing = iconSize + 12;
+
+const startX =
+    g.width / 2 -
+    ((fruits.length - 1) * spacing) / 2;
+
+    const fruitY = boxY + boxHeight * 0.18;
+
+for (let i = 0; i < fruits.length; i++) {
+
+    const img = fruits[i];
+
+    if (img.complete) {
+
+        ctx.save();
+
+        ctx.shadowColor = "rgba(0,0,0,.18)";
+        ctx.shadowBlur = 8;
+
+        ctx.drawImage(
+            img,
+            startX + i * spacing - iconSize / 2,
+            fruitY,
+            iconSize,
+            iconSize
         );
+
+        ctx.restore();
+
+    }
+
+}
 
         ctx.fillStyle = "#333";
 
-        ctx.font = `bold ${Math.max(20, boxWidth * 0.03)}px Arial`;
+        const textSize = Math.max(
+    18,
+    Math.min(
+        boxWidth * 0.032,
+        28
+    )
+);
+
+ctx.font = `bold ${textSize}px Arial`;
 
         ctx.fillText(
             "ลากผลไม้ลงตะกร้าให้ถูกประเภท",
@@ -94,11 +172,18 @@ export default class UI {
             boxY + 275
         );
 
-        const bw = 300;
-        const bh = 80;
+        const bw = Math.min(
+    g.width * 0.34,
+    320
+);
+
+const bh = Math.max(
+    g.height * 0.08,
+    70
+);
 
         const bx = g.width / 2 - bw / 2;
-        const by = boxY + 340;
+        const by = boxY + boxHeight * 0.72;
 
         this.startButton.x = bx;
         this.startButton.y = by;
@@ -111,32 +196,72 @@ export default class UI {
             g.pointer.y >= by &&
             g.pointer.y <= by + bh;
 
-        ctx.fillStyle = hover
-            ? "#27AE60"
-            : "#2ECC71";
+        const scale = hover ? 1.05 : 1;
 
-        ctx.beginPath();
-        ctx.roundRect(
-            bx,
-            by,
-            bw,
-            bh,
-            20
-        );
+ctx.save();
 
-        ctx.fill();
+ctx.translate(
+    bx + bw / 2,
+    by + bh / 2
+);
+
+ctx.scale(scale, scale);
+
+ctx.translate(
+    -(bx + bw / 2),
+    -(by + bh / 2)
+);
+
+ctx.fillStyle = hover
+    ? "#27AE60"
+    : "#2ECC71";
+
+        ctx.shadowColor = "rgba(0,0,0,.25)";
+ctx.shadowBlur = 15;
+
+ctx.beginPath();
+
+ctx.roundRect(
+    bx,
+    by,
+    bw,
+    bh,
+    22
+);
+
+ctx.fill();
+
+ctx.shadowBlur = 0;
+
+ctx.lineWidth = 4;
+ctx.strokeStyle = "white";
+ctx.stroke();
 
         ctx.fillStyle = "white";
-        ctx.font = "bold 34px Arial";
 
-        ctx.fillText(
-            "🎮 เริ่มเกม",
-            g.width / 2,
-            by + 50
-        );
+ctx.font =
+`bold ${Math.max(
+24,
+bh * 0.42
+)}px Arial`;
+
+ctx.fillText(
+
+    "▶ เริ่มเกม",
+
+    g.width / 2,
+
+    by + bh / 2 + 10
+
+);
+
+ctx.restore();
 
         ctx.fillStyle = "#FF4081";
-        ctx.font = "bold 24px Arial";
+        ctx.font = `bold ${Math.max(
+18,
+boxWidth * 0.028
+)}px Arial`;
 
         ctx.fillText(
             "มาเรียนรู้ไปด้วยกันอย่างสนุกสนานนะคะ 💖",
@@ -169,7 +294,10 @@ export default class UI {
         );
 
         const boxW = Math.min(520, g.width * 0.8);
-        const boxH = 320;
+        const boxH = Math.min(
+    g.height * 0.45,
+    340
+);
 
         const boxX = (g.width - boxW) / 2;
         const boxY = (g.height - boxH) / 2;
@@ -191,7 +319,13 @@ export default class UI {
 
         ctx.fillStyle = "#2E7D32";
 
-        ctx.font = "bold 46px Arial";
+        ctx.font = `bold ${Math.max(
+    30,
+    Math.min(
+        boxW * 0.08,
+        48
+    )
+)}px Arial`;
 
         ctx.fillText(
             "🏆 จบเกม",
@@ -201,7 +335,13 @@ export default class UI {
 
         ctx.fillStyle = "#333";
 
-        ctx.font = "bold 30px Arial";
+        ctx.font = `bold ${Math.max(
+    22,
+    Math.min(
+        boxW * 0.055,
+        34
+    )
+)}px Arial`;
 
         ctx.fillText(
             `คะแนน ${g.score.value}`,
@@ -209,8 +349,15 @@ export default class UI {
             boxY + 145
         );
 
-        const bw = 260;
-        const bh = 70;
+        const bw = Math.min(
+    boxW * 0.6,
+    280
+);
+
+const bh = Math.max(
+    g.height * 0.075,
+    65
+);
 
         const bx = g.width / 2 - bw / 2;
         const by = boxY + 210;
@@ -232,7 +379,10 @@ export default class UI {
         ctx.fill();
 
         ctx.fillStyle = "white";
-        ctx.font = "bold 30px Arial";
+        ctx.font = `bold ${Math.max(
+22,
+bh * 0.42
+)}px Arial`;
 
         ctx.fillText(
             "🔄 เล่นอีกครั้ง",

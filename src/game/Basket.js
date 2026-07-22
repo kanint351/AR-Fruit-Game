@@ -64,21 +64,27 @@ export default class Basket {
         //----------------------------------
 
         const radius = Math.min(
-            22,
-            this.height * 0.25
-        );
+    this.height * 0.25,
+    28
+);
 
         const fontSize = Math.max(
-            16,
-            Math.min(
-                this.width * 0.085,
-                30
-            )
-        );
+    18,
+    Math.min(
+        this.width * 0.075,
+        32
+    )
+);
 
-        const iconSize = fontSize * 0.9;
+        const iconSize = Math.max(
+    22,
+    fontSize * 0.9
+);
 
-        const padding = this.width * 0.08;
+        const padding = Math.max(
+    16,
+    this.width * 0.06
+);
 
         //----------------------------------
         // Shadow
@@ -87,7 +93,10 @@ export default class Basket {
         ctx.save();
 
         ctx.shadowColor = "rgba(0,0,0,.25)";
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = Math.max(
+    8,
+    this.height * 0.12
+);
 
         //----------------------------------
         // Background
@@ -115,7 +124,10 @@ export default class Basket {
 
         ctx.shadowBlur = 0;
 
-        ctx.lineWidth = 4;
+        ctx.lineWidth = Math.max(
+    2,
+    this.height * 0.04
+);
 
         ctx.strokeStyle = "white";
 
