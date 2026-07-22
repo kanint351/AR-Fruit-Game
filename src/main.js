@@ -1,27 +1,28 @@
 import Game from "./game/Game.js";
+import { preloadImages } from "./game/Images.js";
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
 
+    // โหลดรูปทั้งหมดก่อน
+    await preloadImages();
+
+    // สร้างเกม
     const game = new Game();
 
     function loop() {
 
-        // อัปเดตเวลา
         game.timer.update();
 
-        // วาดเกม
         if (game.renderer) {
             game.renderer.render();
         }
 
-        // เช็กหมดเวลา
         if (
             game.timer.isFinished() &&
             !game.gameOver
         ) {
 
             game.gameOver = true;
-
             game.timer.stop();
 
         }
