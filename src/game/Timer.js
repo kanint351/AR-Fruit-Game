@@ -1,31 +1,46 @@
 export default class Timer {
 
-    constructor(game, seconds) {
+    constructor(game, seconds = 60) {
 
         this.game = game;
 
         this.time = seconds;
-        this.max = seconds;
 
         this.running = false;
 
-        this.lastTime = 0;
+        this.lastTick = 0;
 
     }
 
-    reset(seconds = this.max) {
+    //----------------------------------
+    // Reset
+    //----------------------------------
+
+    reset(seconds = 60) {
 
         this.time = seconds;
+
         this.running = false;
 
+        this.lastTick = performance.now();
+
     }
+
+    //----------------------------------
+    // Start
+    //----------------------------------
 
     start() {
 
         this.running = true;
-        this.lastTime = performance.now();
+
+        this.lastTick = performance.now();
 
     }
+
+    //----------------------------------
+    // Stop
+    //----------------------------------
 
     stop() {
 
@@ -33,21 +48,37 @@ export default class Timer {
 
     }
 
+    //----------------------------------
+    // Update
+    //----------------------------------
+
     update() {
 
         if (!this.running) return;
 
         const now = performance.now();
 
-        if (now - this.lastTime >= 1000) {
+        if (now - this.lastTick >= 1000) {
 
             this.time--;
 
-            this.lastTime += 1000;
+            this.lastTick += 1000;
+
+            if (this.time <= 0) {
+
+                this.time = 0;
+
+                this.stop();
+
+            }
 
         }
 
     }
+
+    //----------------------------------
+    // Finished ?
+    //----------------------------------
 
     isFinished() {
 
@@ -55,206 +86,83 @@ export default class Timer {
 
     }
 
+    //----------------------------------
+    // Draw
+    //----------------------------------
+
     draw(ctx) {
 
-    const g = this.game;
+        const r = this.game.renderer;
 
-    //----------------------------------
-    // Responsive
-    //----------------------------------
+        const panelW = r.ui(260);
 
-    const margin = Math.max(
-        18,
-        g.width * 0.02
-    );
+        const panelH = r.ui(90);
 
-    const panelW = Math.min(
-        320,
-        g.width * 0.23
-    );
+        const x =
+            this.game.width -
+            panelW -
+            r.ui(18);
 
-    const panelH = Math.max(
-        90,
-        g.height * 0.11
-    );
+        const y = r.ui(18);
 
-    const x =
-        g.width -
-        panelW -
-        margin;
+        const danger = this.time <= 10;
 
-    const y = margin;
+        //----------------------------------
+        // Card
+        //----------------------------------
 
-    //----------------------------------
-    // สีตามเวลา
-    //----------------------------------
+        r.drawCard(
 
-    let border = "#42A5F5";
-    let bg = "rgba(255,255,255,.95)";
+            ctx,
 
-    if (this.time <= 20) {
+            x,
 
-        border = "#FF9800";
+            y,
 
-    }
+            panelW,
 
-    if (this.time <= 10) {
+            panelH,
 
-        border = "#F44336";
-        bg = "#FFEBEE";
+            danger
+                ? "#F44336"
+                : "#2196F3",
 
-    }
+            danger
+                ? "rgba(255,235,238,.95)"
+                : "rgba(255,255,255,.95)"
 
-    //----------------------------------
-    // Card
-    //----------------------------------
-
-    ctx.save();
-
-    ctx.shadowColor = "rgba(0,0,0,.18)";
-    ctx.shadowBlur = 16;
-
-    ctx.fillStyle = bg;
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-        x,
-        y,
-        panelW,
-        panelH,
-        22
-    );
-
-    ctx.fill();
-
-    ctx.shadowBlur = 0;
-
-    ctx.lineWidth = 3;
-
-    ctx.strokeStyle = border;
-
-    ctx.stroke();
-
-    //----------------------------------
-    // Pulse ตอนเหลือ 10 วิ
-    //----------------------------------
-
-    let scale = 1;
-
-    if (this.time <= 10) {
-
-        scale =
-            1 +
-            Math.sin(
-                performance.now() / 120
-            ) * 0.08;
-
-    }
-
-    //----------------------------------
-    // Icon
-    //----------------------------------
-
-    const iconSize = Math.max(
-        30,
-        Math.min(
-            g.width * 0.03,
-            44
-        )
-    );
-
-    //----------------------------------
-    // Text
-    //----------------------------------
-
-    const textSize = Math.max(
-        24,
-        Math.min(
-            g.width * 0.028,
-            40
-        )
-    );
-
-    ctx.font = `${iconSize}px Arial`;
-
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-
-    ctx.fillText(
-        "⏰",
-        x + 22,
-        y + panelH / 2
-    );
-
-    //----------------------------------
-    // เวลา
-    //----------------------------------
-
-    ctx.save();
-
-    ctx.translate(
-        x + panelW - 26,
-        y + panelH / 2
-    );
-
-    ctx.scale(
-        scale,
-        scale
-    );
-
-    ctx.fillStyle =
-        this.time <= 10
-            ? "#D32F2F"
-            : "#222";
-
-    ctx.font =
-        `bold ${textSize}px Arial`;
-
-    ctx.textAlign = "right";
-
-    ctx.fillText(
-        `${this.time} วิ`,
-        0,
-        0
-    );
-
-    ctx.restore();
-
-    //----------------------------------
-    // กระพริบกรอบ
-    //----------------------------------
-
-    if (this.time <= 10) {
-
-        ctx.strokeStyle =
-            `rgba(244,67,54,${
-                0.2 +
-                Math.abs(
-                    Math.sin(
-                        performance.now()/120
-                    )
-                ) * .5
-            })`;
-
-        ctx.lineWidth = 6;
-
-        ctx.beginPath();
-
-        ctx.roundRect(
-            x - 3,
-            y - 3,
-            panelW + 6,
-            panelH + 6,
-            24
         );
 
-        ctx.stroke();
+        //----------------------------------
+        // Text
+        //----------------------------------
+
+        ctx.save();
+
+        ctx.fillStyle =
+            danger
+                ? "#D32F2F"
+                : "#222";
+
+        ctx.font =
+            `bold ${r.ui(28)}px Arial`;
+
+        ctx.textAlign = "center";
+
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(
+
+            `⏰ ${this.time} วิ`,
+
+            x + panelW / 2,
+
+            y + panelH / 2
+
+        );
+
+        ctx.restore();
 
     }
-
-    ctx.restore();
-
-}
 
 }

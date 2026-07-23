@@ -145,14 +145,17 @@ export default class Fruit {
 
     releaseSlot() {
 
-        if (this.slot) {
+    if (this.slot) {
 
-            this.slot.fruit = null;
-            this.slot = null;
-
-        }
+        this.slot.fruit = null;
+        this.slot = null;
 
     }
+
+    this.active = false;
+    this.dragging = false;
+
+}
 
     //----------------------------------
     // Draw

@@ -6,135 +6,131 @@ export default class GameLogic {
 
         this.spawnTimer = 0;
         this.spawnDelay = 700;
-        
-
-    
-
 
     }
 
-    //-----------------------------
+    //----------------------------------
     // เริ่มเกม
-    //-----------------------------
+    //----------------------------------
 
     start() {
 
-    const g = this.game;
+        const g = this.game;
 
-    g.started = true;
-    g.gameOver = false;
+        g.started = true;
+        g.gameOver = false;
+        g.win = false;
 
-    g.dragFruit = null;
+        g.dragFruit = null;
 
-    g.effects.length = 0;
+        g.effects.length = 0;
 
-    g.score.reset();
+        g.score.reset();
 
-    g.timer.reset(60);
-    g.timer.start();
+        g.timer.reset(60);
+        g.timer.start();
 
-    g.lives.reset();
+        g.lives.reset();
 
-    g.createSpawnSlots();
+        g.createSpawnSlots();
 
-    for (const fruit of g.fruits) {
+        for (const fruit of g.fruits) {
 
-        fruit.releaseSlot();
-        fruit.active = false;
+            fruit.releaseSlot();
+
+            fruit.active = false;
+            fruit.dragging = false;
+            fruit.scale = 0;
+
+        }
+
+        this.spawnTimer = performance.now();
+
+        for (let i = 0; i < g.fruits.length; i++) {
+
+            this.spawnFruit();
+
+        }
 
     }
 
-    // สร้างผลไม้เริ่มต้น
-    for (let i = 0; i < g.fruits.length; i++) {
-
-        this.spawnFruit();
-
-    }
-
-}
-    //-----------------------------
-    // รีสตาร์ต
-    //-----------------------------
+    //----------------------------------
+    // เล่นอีกครั้ง
+    //----------------------------------
 
     restart() {
 
-    const g = this.game;
+        const g = this.game;
 
-    g.gameOver = false;
-    g.started = false;
+        // รีเซ็ตเสียง
+        g.sound.bgm.pause();
+        g.sound.bgm.currentTime = 0;
 
-    g.dragFruit = null;
+        // รีเซ็ตสถานะเกม
+        g.started = false;
+        g.gameOver = false;
+        g.win = false;
 
-    g.effects.length = 0;
+        g.dragFruit = null;
 
-    g.score.reset();
+        g.effects.length = 0;
 
-    g.timer.reset(60);
+        g.score.reset();
 
-    g.lives.reset();
+        g.timer.reset(60);
 
-    g.createSpawnSlots();
+        g.lives.reset();
 
-    for (const fruit of g.fruits) {
+        g.createSpawnSlots();
 
-        fruit.releaseSlot();
+        // รีเซ็ตผลไม้ทุกลูก
+        for (const fruit of g.fruits) {
 
+            fruit.releaseSlot();
+
+            fruit.active = false;
+            fruit.dragging = false;
+            fruit.scale = 0;
+
+        }
+
+        this.spawnTimer = 0;
+
+        this.start();
+
+        g.sound.bgm.play().catch(console.error);
 
     }
-    for (const fruit of g.fruits) {
 
-    fruit.releaseSlot();
-
-}
-
-g.createSpawnSlots();
-
-this.spawnTimer = performance.now();
-
-this.start();
-
-    this.start();
-
-}
-
-    //-----------------------------
+    //----------------------------------
     // อัปเดตเกม
-    //-----------------------------
+    //----------------------------------
 
     update() {
-        
+
         const g = this.game;
 
         if (!g.started) return;
 
         if (g.gameOver) return;
 
-        //-----------------
-        // Timer
-        //-----------------
-
         g.timer.update();
 
         const now = performance.now();
 
-if (!this.spawnTimer) {
+        if (!this.spawnTimer) {
 
-    this.spawnTimer = now;
+            this.spawnTimer = now;
 
-}
+        }
 
-if (now - this.spawnTimer > 700) {
+        if (now - this.spawnTimer >= this.spawnDelay) {
 
-    this.spawnFruit();
+            this.spawnFruit();
 
-    this.spawnTimer = now;
+            this.spawnTimer = now;
 
-}
-        
-
-        //-----------------
-        // Fruits
-        //-----------------
+        }
 
         for (const fruit of g.fruits) {
 
@@ -146,27 +142,17 @@ if (now - this.spawnTimer > 700) {
 
         }
 
-        //-----------------
-        // Effects
-        //-----------------
-
         for (let i = g.effects.length - 1; i >= 0; i--) {
 
-            const effect = g.effects[i];
+            g.effects[i].update();
 
-            effect.update();
-
-            if (effect.dead) {
+            if (g.effects[i].dead) {
 
                 g.effects.splice(i, 1);
 
             }
 
         }
-
-        //-----------------
-        // หมดเวลา
-        //-----------------
 
         if (g.timer.isFinished()) {
 
@@ -175,128 +161,76 @@ if (now - this.spawnTimer > 700) {
         }
 
     }
-spawnFruit() {
-
-    const g = this.game;
-
-    const fruit =
-        g.fruits.find(f => !f.active);
-
-    if (!fruit) return;
-
-    fruit.reset();
 
     //----------------------------------
-    // Smart Spawn
+    // สร้างผลไม้
     //----------------------------------
 
-    const freeSlots =
-        g.spawnSlots.filter(
-            s => s.fruit === null
+    spawnFruit() {
+
+        const g = this.game;
+
+        const fruit = g.fruits.find(f => !f.active);
+
+        if (!fruit) return;
+
+        const freeSlots = g.spawnSlots.filter(
+            slot => slot.fruit === null
         );
 
-    if (freeSlots.length === 0) {
+        if (freeSlots.length === 0) return;
 
-    fruit.active = false;
+        fruit.reset();
 
-    return;
+        const slot =
+            freeSlots[
+                Math.floor(
+                    Math.random() * freeSlots.length
+                )
+            ];
 
-}
+        slot.fruit = fruit;
 
-    let bestSlot = null;
-    let bestScore = -Infinity;
+        fruit.slot = slot;
 
-    for (const slot of freeSlots) {
+        fruit.x = slot.x - fruit.size / 2;
+        fruit.y = slot.y - fruit.size / 2;
 
-        let minDistance = Infinity;
-
-        for (const other of g.fruits) {
-
-            if (
-                !other.active ||
-                !other.slot
-            ) continue;
-
-            const dx =
-                slot.x - other.slot.x;
-
-            const dy =
-                slot.y - other.slot.y;
-
-            const d =
-                Math.hypot(dx, dy);
-
-            if (d < minDistance) {
-
-                minDistance = d;
-
-            }
-
-        }
-
-        if (minDistance === Infinity) {
-
-            minDistance = 99999;
-
-        }
-
-        // เพิ่มความสุ่มเล็กน้อย
-        minDistance +=
-            Math.random() * 30;
-
-        if (minDistance > bestScore) {
-
-            bestScore = minDistance;
-            bestSlot = slot;
-
-        }
-            }
-
-    //----------------------------------
-    // วางผลไม้ลง Slot ที่ดีที่สุด
-    //----------------------------------
-
-    if (!bestSlot) return;
-
-    bestSlot.fruit = fruit;
-
-    fruit.slot = bestSlot;
-
-    fruit.x =
-        bestSlot.x -
-        fruit.size / 2;
-
-    fruit.y =
-        bestSlot.y -
-        fruit.size / 2;
+        fruit.active = true;
         fruit.dragging = false;
+        fruit.scale = 0;
 
-fruit.scale = 0;
+    }
 
-    fruit.active = true;
-
-}
-    //-----------------------------
-    // Game Over
-    //-----------------------------
+    //----------------------------------
+    // จบเกม
+    //----------------------------------
 
     gameOver() {
 
-    const g = this.game;
+        const g = this.game;
 
-    for (const fruit of g.fruits) {
+        if (g.gameOver) return;
 
-    fruit.releaseSlot();
+        g.gameOver = true;
 
-}
+        g.timer.stop();
 
-    g.gameOver = true;
+        g.sound.play(g.sound.gameover);
 
-    g.timer.stop();
+        g.sound.bgm.pause();
+        g.sound.bgm.currentTime = 0;
 
-    // บันทึกคะแนนสูงสุด
-    g.score.saveHighScore();
+        for (const fruit of g.fruits) {
 
-}
+            fruit.releaseSlot();
+
+            fruit.active = false;
+
+        }
+
+        g.score.saveHighScore();
+
+    }
 
 }

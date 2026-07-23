@@ -159,7 +159,7 @@ export default class Input {
         // กดปุ่มเล่นใหม่
 if (g.gameOver) {
 
-    const b = g.ui.restartButton;
+    const b = g.restartButton;
 
     if (
         b &&

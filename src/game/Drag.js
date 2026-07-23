@@ -83,6 +83,8 @@ console.log(
 
             g.score.add();
 
+            g.sound.play(g.sound.correct);
+
             this.spawnEffect(
 
                 fruit.x + fruit.size / 2,
@@ -102,6 +104,8 @@ console.log(
         else {
 
             g.lives.lose();
+
+            g.sound.play(g.sound.wrong);
 
             g.score.miss();
 

@@ -1,5 +1,7 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
 
-export default defineConfig({
-  base: '/AR-Fruit-Game/'
-})
+export default defineConfig(({ command }) => ({
+  base: command === "build"
+    ? "/AR-Fruit-Game/"
+    : "/"
+}));

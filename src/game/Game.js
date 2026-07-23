@@ -10,6 +10,7 @@ import UI from "./UI.js";
 import { WORDS } from "../data/words.js";
 import Lives from "./Lives.js";
 import { enterFullscreen } from "./Fullscreen.js";
+import Sound from "./Sound.js";
 
 export default class Game {
 
@@ -44,6 +45,7 @@ export default class Game {
     this.score = new Score(this);
     this.timer = new Timer(this, 60);
     this.lives = new Lives(this);
+    this.sound = new Sound();
     
 
     this.effects = [];
@@ -56,7 +58,9 @@ this.createObjects();
 // แล้วค่อยคำนวณขนาดหน้าจอ
 this.resize();
 
+
 this.renderer = new Renderer(this);
+this.renderer.game = this;
 
 this.ui = new UI(this);
 
@@ -334,6 +338,10 @@ createSpawnSlots() {
 
 }
 startGame() {
+    this.sound.play(this.sound.click);
+
+this.sound.bgm.currentTime = 0;
+this.sound.bgm.play().catch(console.error);
 
     enterFullscreen();
 

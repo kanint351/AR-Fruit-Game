@@ -6,293 +6,131 @@ export default class Renderer {
 
     }
 
+    //----------------------------------
+    // Responsive Scale
+    //----------------------------------
+
+    ui(value) {
+
+        const scale = Math.min(
+
+            this.game.width / 1366,
+
+            this.game.height / 768
+
+        );
+
+        return value * Math.max(scale, 0.55);
+
+    }
+
+    //----------------------------------
+    // Universal Card
+    //----------------------------------
+
+    drawCard(
+        ctx,
+        x,
+        y,
+        w,
+        h,
+        border = "#66BB6A",
+        bg = "rgba(255,255,255,.95)"
+    ) {
+
+        ctx.save();
+
+        ctx.shadowColor = "rgba(0,0,0,.18)";
+        ctx.shadowBlur = this.ui(16);
+
+        ctx.fillStyle = bg;
+
+        ctx.beginPath();
+
+        ctx.roundRect(
+            x,
+            y,
+            w,
+            h,
+            this.ui(22)
+        );
+
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        ctx.lineWidth = this.ui(3);
+
+        ctx.strokeStyle = border;
+
+        ctx.stroke();
+
+        ctx.restore();
+
+    }
+
+    //----------------------------------
+    // Render
+    //----------------------------------
+
     render() {
 
-    const g = this.game;
-    const ctx = g.ctx;
+        const g = this.game;
+        const ctx = g.ctx;
 
-    ctx.imageSmoothingEnabled=true;
+        ctx.imageSmoothingEnabled = true;
 
-    ctx.clearRect(
-        0,
-        0,
-        g.width,
-        g.height
-    );
+        ctx.clearRect(
+            0,
+            0,
+            g.width,
+            g.height
+        );
 
-    if (!g.started) {
+        if (!g.started) {
 
-        g.ui.drawStart();
-        return;
+            this.drawStart();
+            return;
+
+        }
+
+        if (g.gameOver) {
+
+            this.drawGameOver();
+            return;
+
+        }
+
+        this.drawGame();
 
     }
 
-    if (g.gameOver) {
-
-        g.ui.drawGameOver();
-        return;
-
-    }
-
-    this.drawGame();
-
-}
+    //----------------------------------
+    // Main Game
+    //----------------------------------
 
     drawGame() {
 
         const g = this.game;
         const ctx = g.ctx;
 
-        const sky = ctx.createLinearGradient(
-    0,
-    0,
-    0,
-    g.height
-);
-
-sky.addColorStop(0, "#7DD3FC");
-sky.addColorStop(.6, "#BAE6FD");
-sky.addColorStop(1, "#E0F7FF");
-
-ctx.fillStyle = sky;
-ctx.fillRect(
-    0,
-    0,
-    g.width,
-    g.height
-);
-
-this.drawCloud(
-    ctx,
-    g.width * 0.5,
-    85,
-    Math.min(g.width * 0.05, 38)
-);
-
-        //---------------------------------
-// พื้นหญ้า Responsive
-//---------------------------------
-
-const grassHeight = Math.max(
-    80,
-    g.height * 0.12
-);
-
-const grass = ctx.createLinearGradient(
-    0,
-    g.height - grassHeight,
-    0,
-    g.height
-);
-
-grass.addColorStop(0, "#7ED957");
-grass.addColorStop(1, "#43A047");
-
-ctx.fillStyle = grass;
-
-ctx.fillRect(
-    0,
-    g.height - grassHeight,
-    g.width,
-    grassHeight
-);
-
-ctx.strokeStyle = "#66BB6A";
-ctx.lineWidth = 2;
-
-for (let x = 0; x < g.width; x += 8) {
-
-    const h = Math.random() * 12 + 8;
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x,
-        g.height - grassHeight + 20
-    );
-
-    ctx.lineTo(
-        x + 2,
-        g.height - grassHeight + 20 - h
-    );
-
-    ctx.stroke();
-
-}
-
-        g.leftBasket.draw(ctx);
-        g.rightBasket.draw(ctx);
-
-        for(const fruit of g.fruits){
-
-            if(fruit.active){
-
-                fruit.draw(ctx);
-
-            }
-
-        }
-
-        for(const effect of g.effects){
-
-            effect.draw(ctx);
-
-        }
-
-        g.score.draw(ctx);
-        g.timer.draw(ctx);
-        
-        
-        if (g.score.combo >= 3) {
-
-    ctx.save();
-
-    const isMobile = g.width < 700;
-
-const fontSize = isMobile
-    ? Math.max(18, g.width * 0.05)
-    : Math.max(
-        28,
-        Math.min(g.width * 0.04, 54)
-    );
-
-    const comboY =
-    g.height *
-    (g.width < 700 ? 0.14 : 0.09);
-
-    ctx.font = `bold ${fontSize}px Arial`;
-    ctx.textAlign = "center";
-
-    let text;
-
-if (g.width < 700) {
-
-    text = `🔥 x${g.score.combo}`;
-
-} else {
-
-    text = `🔥 COMBO x${g.score.combo}`;
-
-}
-
-    if (g.score.combo >= 10) {
-
-        text =
-    g.width < 700
-        ? `👑 x${g.score.combo}`
-        : `👑 PERFECT x${g.score.combo}`;
-        ctx.fillStyle = "#E91E63";
-
-    } else if (g.score.combo >= 5) {
-
-        text =
-    g.width < 700
-        ? `⚡ x${g.score.combo}`
-        : `⚡ GREAT x${g.score.combo}`;
-        ctx.fillStyle = "#FF9800";
-
-    } else {
-
-        ctx.fillStyle = "#FFD54F";
-
-    }
-
-    ctx.shadowColor = ctx.fillStyle;
-    ctx.shadowBlur =
-    12 +
-    Math.sin(Date.now()/120)*6;
-
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 4;
-
-    ctx.textBaseline = "middle";
-
-    ctx.strokeText(
-        text,
-        g.width / 2,
-        comboY
-    );
-
-    ctx.fillText(
-        text,
-        g.width / 2,
-        comboY
-    );
-
-    ctx.restore();
-
-}
-
-    }
-
-    drawStart(){
-
-        const g=this.game;
-        const ctx=g.ctx;
+        //----------------------------------
+        // Sky
+        //----------------------------------
 
         const sky = ctx.createLinearGradient(
-    0,
-    0,
-    0,
-    g.height
-);
-
-sky.addColorStop(0,"#7DD3FC");
-sky.addColorStop(.6,"#BAE6FD");
-sky.addColorStop(1,"#E0F7FF");
-
-ctx.fillStyle = sky;
-ctx.fillRect(
-    0,
-    0,
-    g.width,
-    g.height
-);
-
-        ctx.textAlign="center";
-
-        ctx.fillStyle="#2E7D32";
-
-        ctx.font=`bold ${
-            Math.max(
-                34,
-                Math.min(
-                    g.width*0.055,
-                    70
-                )
-            )
-        }px Arial`;
-
-        ctx.fillText(
-            "🍎 เกมแยกคำประวิสรรชนีย์ 🍎",
-            g.width/2,
-            140
+            0,
+            0,
+            0,
+            g.height
         );
 
-        ctx.font=`${
-            Math.max(
-                22,
-                Math.min(
-                    g.width*0.03,
-                    40
-                )
-            )
-        }px Arial`;
+        sky.addColorStop(0, "#7DD3FC");
+        sky.addColorStop(.6, "#BAE6FD");
+        sky.addColorStop(1, "#E0F7FF");
 
-        ctx.fillText(
-            "คลิกเพื่อเริ่มเกม",
-            g.width/2,
-            240
-        );
+        ctx.fillStyle = sky;
 
-    }
-
-    drawGameOver(){
-
-        const g=this.game;
-        const ctx=g.ctx;
-
-        ctx.fillStyle="rgba(0,0,0,.65)";
         ctx.fillRect(
             0,
             0,
@@ -300,209 +138,629 @@ ctx.fillRect(
             g.height
         );
 
-        ctx.textAlign="center";
-        ctx.textBaseline="middle";
-        ctx.fillStyle="white";
+        //----------------------------------
+        // Cloud
+        //----------------------------------
 
-        const titleSize =
-    g.width < 700
-        ? Math.max(
-            34,
-            g.width * 0.08
-        )
-        : Math.max(
-            38,
-            Math.min(
-                g.width * 0.06,
-                72
-            )
+        this.drawCloud(
+
+            ctx,
+
+            g.width * 0.5,
+
+            this.ui(70),
+
+            this.ui(32)
+
         );
 
-ctx.font =
-    `bold ${titleSize}px Arial`;
+        //----------------------------------
+        // Grass
+        //----------------------------------
 
-        ctx.fillText(
-            "🏆 จบเกม",
-            g.width/2,
-            g.height/2-150
+        const grassHeight = this.ui(90);
+
+        const grass = ctx.createLinearGradient(
+
+            0,
+
+            g.height - grassHeight,
+
+            0,
+
+            g.height
+
         );
 
-        const bottomY = this.drawStatistics(ctx);
+        grass.addColorStop(0, "#7ED957");
+        grass.addColorStop(1, "#43A047");
 
-this.drawRestartButton(ctx, bottomY);
+        ctx.fillStyle = grass;
 
-    }
+        ctx.fillRect(
 
-    drawStatistics(ctx){
+            0,
 
-        const g=this.game;
+            g.height - grassHeight,
 
-        const total=
-            g.score.correct+
-            g.score.wrong;
+            g.width,
 
-        const accuracy=
-            total===0
-            ?0
-            :Math.round(
-                g.score.correct/
-                total*100
+            grassHeight
+
+        );
+
+        //----------------------------------
+        // Grass Line
+        //----------------------------------
+
+        ctx.strokeStyle = "#66BB6A";
+
+        ctx.lineWidth = 2;
+
+        for (
+
+            let x = 0;
+
+            x < g.width;
+
+            x += 8
+
+        ) {
+
+            const h =
+                Math.random() * 12 + 8;
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+
+                x,
+
+                g.height -
+                grassHeight +
+                20
+
             );
 
-        const textSize =
-    g.width < 700
-        ? Math.max(
-            16,
-            g.width * 0.05
-        )
-        : Math.max(
-            20,
-            Math.min(
-                g.width * 0.028,
-                36
-            )
+            ctx.lineTo(
+
+                x + 2,
+
+                g.height -
+                grassHeight +
+                20 -
+                h
+
+            );
+
+            ctx.stroke();
+
+        }
+
+        //----------------------------------
+        // Basket
+        //----------------------------------
+
+        g.leftBasket.draw(ctx);
+
+        g.rightBasket.draw(ctx);
+
+        //----------------------------------
+        // Fruits
+        //----------------------------------
+
+        for (const fruit of g.fruits) {
+
+            if (fruit.active) {
+
+                fruit.draw(ctx);
+
+            }
+
+        }
+
+        //----------------------------------
+        // Effects
+        //----------------------------------
+
+        for (const effect of g.effects) {
+
+            effect.draw(ctx);
+
+        }
+
+        //----------------------------------
+        // HUD
+        //----------------------------------
+
+        this.drawHUDCard(ctx);
+
+        g.timer.draw(ctx);
+
+        //----------------------------------
+        // Combo
+        //----------------------------------
+
+        if (g.score.combo >= 3) {
+
+            this.drawComboBanner(ctx);
+
+        }
+
+        }
+            //----------------------------------
+    // HUD Card
+    //----------------------------------
+
+    drawHUDCard(ctx) {
+
+        const g = this.game;
+
+        const cardW = this.ui(320);
+        const cardH = this.ui(215);
+
+        const x = this.ui(18);
+        const y = this.ui(18);
+
+        this.drawCard(
+            ctx,
+            x,
+            y,
+            cardW,
+            cardH,
+            "#66BB6A"
         );
 
-        const line =
-    textSize +
-    (g.width < 700 ? 10 : 18);
+        //----------------------------------
 
-        const startY =
-    g.height *
-    (g.width < 700
-        ? 0.23
-        : 0.42);
+        const left = x + this.ui(22);
+        const right = x + cardW - this.ui(22);
 
-        ctx.font=`${textSize}px Arial`;
-        ctx.fillStyle="white";
+        const labelFont = this.ui(22);
+        const valueFont = this.ui(24);
 
-        ctx.fillText(
-            `⭐ คะแนน : ${g.score.value}`,
-            g.width/2,
-            startY
-        );
-        ctx.fillText(
+        const line = this.ui(42);
 
-    `🏆 คะแนนสูงสุด : ${g.score.highScore}`,
+        let yy = y + this.ui(38);
 
-    g.width / 2,
-
-    startY + line
-
-);
-    ctx.fillText(
-    `🔥 Combo สูงสุด : ${g.score.maxCombo}`,
-    g.width / 2,
-    startY + line * 2
-);
-
-        ctx.fillText(
-            `✅ ตอบถูก : ${g.score.correct}`,
-            g.width/2,
-            startY + line*3
-        );
-
-        ctx.fillText(
-            `❌ ตอบผิด : ${g.score.wrong}`,
-            g.width/2,
-            startY+line*4
-        );
-
-        ctx.fillText(
-            `🎯 ความแม่นยำ : ${accuracy}%`,
-            g.width/2,
-            startY+line*5
-        );
-
-        // ส่งตำแหน่งล่างสุดกลับไป
-        return startY + line * 4;
-
-    }
-
-    drawRestartButton(ctx, bottomY){
-
-        const g=this.game;
-
-        const buttonWidth =
-    g.width < 700
-        ? g.width * 0.65
-        : Math.min(
-            260,
-            g.width * 0.35
-        );
-
-        const buttonHeight =
-    g.width < 700
-        ? 60
-        : Math.max(
-            55,
-            g.height * 0.08
-        );
-
-        g.restartButton={
-
-            x:g.width/2-buttonWidth/2,
-
-            y: bottomY + 70,
-
-            width:buttonWidth,
-
-            height:buttonHeight
-
-        };
+        //----------------------------------
+        // Score
+        //----------------------------------
 
         ctx.save();
 
-        ctx.shadowColor="rgba(0,0,0,.3)";
-        ctx.shadowBlur=12;
+        ctx.textBaseline = "middle";
 
-        ctx.fillStyle="#4CAF50";
+        ctx.font = `bold ${labelFont}px Arial`;
 
-        ctx.beginPath();
+        ctx.fillStyle = "#222";
 
-        ctx.roundRect(
+        ctx.textAlign = "left";
 
-            g.restartButton.x,
+        ctx.fillText(
+            "⭐ คะแนน",
+            left,
+            yy
+        );
 
-            g.restartButton.y,
+        ctx.textAlign = "right";
 
-            g.restartButton.width,
+        ctx.font = `bold ${valueFont}px Arial`;
 
-            g.restartButton.height,
+        ctx.fillText(
+            g.score.value,
+            right,
+            yy
+        );
 
-            18
+        //----------------------------------
+        // Combo
+        //----------------------------------
+
+        yy += line;
+
+        ctx.textAlign = "left";
+
+        ctx.font = `bold ${labelFont}px Arial`;
+
+        ctx.fillStyle = "#FF9800";
+
+        ctx.fillText(
+            "🔥 Combo",
+            left,
+            yy
+        );
+
+        ctx.textAlign = "right";
+
+        ctx.font = `bold ${valueFont}px Arial`;
+
+        ctx.fillText(
+            "x" + g.score.combo,
+            right,
+            yy
+        );
+
+        //----------------------------------
+        // Hearts
+        //----------------------------------
+
+        yy += line;
+
+        let hearts = "";
+
+        for (let i = 0; i < g.lives.max; i++) {
+
+            hearts +=
+                i < g.lives.value
+                    ? "❤️ "
+                    : "🤍 ";
+
+        }
+
+        ctx.textAlign = "left";
+
+        ctx.font = `${this.ui(26)}px Arial`;
+
+        ctx.fillStyle = "#222";
+
+        ctx.fillText(
+            hearts,
+            left,
+            yy
+        );
+
+        //----------------------------------
+        // High Score
+        //----------------------------------
+
+        yy += line;
+
+        ctx.font = `${this.ui(18)}px Arial`;
+
+        ctx.fillStyle = "#666";
+
+        ctx.fillText(
+            `🏆 สูงสุด ${g.score.highScore}`,
+            left,
+            yy
+        );
+
+        ctx.restore();
+
+    }
+
+    //----------------------------------
+    // Combo Banner
+    //----------------------------------
+
+    drawComboBanner(ctx) {
+
+        const g = this.game;
+
+        let icon = "🔥";
+        let title = "COMBO";
+        let color = "#FFD54F";
+
+        if (g.score.combo >= 10) {
+
+            icon = "👑";
+            title = "PERFECT";
+            color = "#E91E63";
+
+        }
+        else if (g.score.combo >= 5) {
+
+            icon = "⚡";
+            title = "GREAT";
+            color = "#FF9800";
+
+        }
+
+        const mobile = g.width < 700;
+
+        const font = mobile
+            ? this.ui(24)
+            : this.ui(34);
+
+        const x = g.width / 2;
+
+        const y = mobile
+            ? this.ui(140)
+            : this.ui(95);
+
+        const scale =
+            1 +
+            Math.sin(
+                performance.now() / 150
+            ) * 0.06;
+
+        ctx.save();
+
+        ctx.translate(x, y);
+
+        ctx.scale(scale, scale);
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.font = `bold ${font}px Arial`;
+
+        ctx.lineWidth = this.ui(4);
+
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.fillStyle = color;
+
+        if (mobile) {
+
+            ctx.strokeText(
+                icon,
+                0,
+                -font
+            );
+
+            ctx.fillText(
+                icon,
+                0,
+                -font
+            );
+
+            ctx.strokeText(
+                title,
+                0,
+                0
+            );
+
+            ctx.fillText(
+                title,
+                0,
+                0
+            );
+
+            ctx.strokeText(
+                "x" + g.score.combo,
+                0,
+                font
+            );
+
+            ctx.fillText(
+                "x" + g.score.combo,
+                0,
+                font
+            );
+
+        } else {
+
+            const text =
+                `${icon} ${title} x${g.score.combo}`;
+
+            ctx.strokeText(
+                text,
+                0,
+                0
+            );
+
+            ctx.fillText(
+                text,
+                0,
+                0
+            );
+
+        }
+
+        ctx.restore();
+
+    }
+        //----------------------------------
+    // Start Screen
+    //----------------------------------
+
+    drawStart() {
+
+        const g = this.game;
+        const ctx = g.ctx;
+
+        //----------------------------------
+        // Background
+        //----------------------------------
+
+        const sky = ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            g.height
+        );
+
+        sky.addColorStop(0, "#7DD3FC");
+        sky.addColorStop(.6, "#BAE6FD");
+        sky.addColorStop(1, "#E0F7FF");
+
+        ctx.fillStyle = sky;
+        ctx.fillRect(
+            0,
+            0,
+            g.width,
+            g.height
+        );
+
+        //----------------------------------
+        // Cloud
+        //----------------------------------
+
+        this.drawCloud(
+            ctx,
+            g.width * 0.5,
+            this.ui(70),
+            this.ui(32)
+        );
+
+        //----------------------------------
+        // Card
+        //----------------------------------
+
+        const cardW = Math.min(
+            this.ui(700),
+            g.width * 0.9
+        );
+
+        const cardH = Math.min(
+            this.ui(420),
+            g.height * 0.72
+        );
+
+        const cardX =
+            (g.width - cardW) / 2;
+
+        const cardY =
+            (g.height - cardH) / 2;
+
+        this.drawCard(
+
+            ctx,
+
+            cardX,
+
+            cardY,
+
+            cardW,
+
+            cardH,
+
+            "#4CAF50"
 
         );
 
-        ctx.fill();
+        //----------------------------------
+        // Title
+        //----------------------------------
 
-        ctx.shadowBlur=0;
+        ctx.save();
 
-        ctx.lineWidth=2;
-        ctx.strokeStyle="white";
-        ctx.stroke();
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
 
-        ctx.fillStyle="white";
+        ctx.fillStyle = "#2E7D32";
 
-        ctx.font=`bold ${
-            Math.max(
-                20,
-                buttonHeight*0.42
-            )
-        }px Arial`;
-
-        ctx.textAlign="center";
-        ctx.textBaseline="middle";
+        ctx.font =
+            `bold ${this.ui(40)}px Arial`;
 
         ctx.fillText(
 
-            "🔄 เล่นใหม่",
+            "🍎 เกมแยกคำประวิสรรชนีย์ 🍎",
 
-            g.restartButton.x+
-            g.restartButton.width/2,
+            g.width / 2,
 
-            g.restartButton.y+
-            g.restartButton.height/2
+            cardY + this.ui(70)
+
+        );
+
+        //----------------------------------
+        // Description
+        //----------------------------------
+
+        ctx.fillStyle = "#444";
+
+        ctx.font =
+            `${this.ui(22)}px Arial`;
+
+        ctx.fillText(
+
+            "ลากผลไม้ลงตะกร้าให้ถูกต้อง",
+
+            g.width / 2,
+
+            cardY + this.ui(130)
+
+        );
+
+        ctx.fillText(
+
+            "ภายในเวลา 60 วินาที",
+
+            g.width / 2,
+
+            cardY + this.ui(165)
+
+        );
+
+        //----------------------------------
+        // High Score
+        //----------------------------------
+
+        ctx.fillStyle = "#FF9800";
+
+        ctx.font =
+            `bold ${this.ui(24)}px Arial`;
+
+        ctx.fillText(
+
+            `🏆 คะแนนสูงสุด ${g.score.highScore}`,
+
+            g.width / 2,
+
+            cardY + this.ui(230)
+
+        );
+
+        //----------------------------------
+        // Start Button
+        //----------------------------------
+
+        const btnW = Math.min(
+            this.ui(260),
+            cardW * .6
+        );
+
+        const btnH = this.ui(70);
+
+        const btnX =
+            g.width / 2 -
+            btnW / 2;
+
+        const btnY =
+            cardY +
+            cardH -
+            this.ui(95);
+
+        g.startButton = {
+
+            x: btnX,
+            y: btnY,
+            width: btnW,
+            height: btnH
+
+        };
+
+        this.drawCard(
+
+            ctx,
+
+            btnX,
+
+            btnY,
+
+            btnW,
+
+            btnH,
+
+            "#43A047",
+
+            "#4CAF50"
+
+        );
+
+        ctx.fillStyle = "white";
+
+        ctx.font =
+            `bold ${this.ui(28)}px Arial`;
+
+        ctx.fillText(
+
+            "▶ เริ่มเกม",
+
+            g.width / 2,
+
+            btnY + btnH / 2
 
         );
 
@@ -510,40 +768,376 @@ this.drawRestartButton(ctx, bottomY);
 
     }
 
-    drawCloud(ctx, x, y, s) {
+    //----------------------------------
+    // Game Over
+    //----------------------------------
 
-    ctx.save();
+    drawGameOver() {
 
-    ctx.fillStyle = "rgba(255,255,255,.95)";
-    ctx.shadowColor = "rgba(255,255,255,.35)";
-    ctx.shadowBlur = 18;
+        const g = this.game;
+        const ctx = g.ctx;
 
-    ctx.beginPath();
+        ctx.fillStyle =
+            "rgba(0,0,0,.55)";
 
-    // ซ้ายสุด
-    ctx.arc(x - s * 3.0, y + s * 0.35, s * 0.75, 0, Math.PI * 2);
+        ctx.fillRect(
+            0,
+            0,
+            g.width,
+            g.height
+        );
 
-    // ซ้าย
-    ctx.arc(x - s * 2.1, y, s * 0.95, 0, Math.PI * 2);
+        const cardW = Math.min(
+            this.ui(620),
+            g.width * .9
+        );
 
-    // กลางซ้าย
-    ctx.arc(x - s, y - s * 0.25, s * 1.2, 0, Math.PI * 2);
+        const cardH = Math.min(
+            this.ui(560),
+            g.height * .82
+        );
 
-    // กลางใหญ่
-    ctx.arc(x, y - s * 0.45, s * 1.55, 0, Math.PI * 2);
+        const cardX =
+            (g.width - cardW) / 2;
 
-    // กลางขวา
-    ctx.arc(x + s, y - s * 0.2, s * 1.2, 0, Math.PI * 2);
+        const cardY =
+            (g.height - cardH) / 2;
 
-    // ขวา
-    ctx.arc(x + s * 2.1, y, s * 0.95, 0, Math.PI * 2);
+        this.drawCard(
 
-    // ขวาสุด
-    ctx.arc(x + s * 3.0, y + s * 0.35, s * 0.75, 0, Math.PI * 2);
+            ctx,
 
-    ctx.fill();
+            cardX,
 
-    ctx.restore();
+            cardY,
 
-}
-}
+            cardW,
+
+            cardH,
+
+            "#42A5F5"
+
+        );
+
+        //----------------------------------
+        // Title
+        //----------------------------------
+
+        ctx.save();
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillStyle = "#222";
+
+        ctx.font =
+            `bold ${this.ui(42)}px Arial`;
+
+        ctx.fillText(
+
+            "🏆 จบเกม",
+
+            g.width / 2,
+
+            cardY + this.ui(55)
+
+        );
+
+        ctx.restore();
+
+        const bottomY =
+            this.drawStatistics(
+
+                ctx,
+
+                cardX,
+
+                cardY,
+
+                cardW
+
+            );
+
+        this.drawRestartButton(
+
+            ctx,
+
+            cardX,
+
+            cardW,
+
+            bottomY
+
+        );
+
+        }
+    //----------------------------------
+    // Statistics
+    //----------------------------------
+
+    drawStatistics(
+        ctx,
+        cardX,
+        cardY,
+        cardW
+    ) {
+
+        const g = this.game;
+
+        const total =
+            g.score.correct +
+            g.score.wrong;
+
+        const accuracy =
+            total === 0
+                ? 0
+                : Math.round(
+                    g.score.correct /
+                    total * 100
+                );
+
+        const font = this.ui(24);
+
+        const line = this.ui(42);
+
+        let y =
+            cardY +
+            this.ui(120);
+
+        ctx.save();
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.font =
+            `${font}px Arial`;
+
+        ctx.fillStyle = "#222";
+
+        ctx.fillText(
+            `⭐ คะแนน : ${g.score.value}`,
+            cardX + cardW / 2,
+            y
+        );
+
+        y += line;
+
+        ctx.fillText(
+            `🏆 คะแนนสูงสุด : ${g.score.highScore}`,
+            cardX + cardW / 2,
+            y
+        );
+
+        y += line;
+
+        ctx.fillText(
+            `🔥 Combo สูงสุด : ${g.score.maxCombo}`,
+            cardX + cardW / 2,
+            y
+        );
+
+        y += line;
+
+        ctx.fillStyle = "#2E7D32";
+
+        ctx.fillText(
+            `✅ ตอบถูก : ${g.score.correct}`,
+            cardX + cardW / 2,
+            y
+        );
+
+        y += line;
+
+        ctx.fillStyle = "#D32F2F";
+
+        ctx.fillText(
+            `❌ ตอบผิด : ${g.score.wrong}`,
+            cardX + cardW / 2,
+            y
+        );
+
+        y += line;
+
+        ctx.fillStyle = "#1976D2";
+
+        ctx.fillText(
+            `🎯 Accuracy : ${accuracy}%`,
+            cardX + cardW / 2,
+            y
+        );
+
+        ctx.restore();
+
+        return y;
+
+    }
+
+    //----------------------------------
+    // Restart Button
+    //----------------------------------
+
+    drawRestartButton(
+        ctx,
+        cardX,
+        cardW,
+        bottomY
+    ) {
+
+        const g = this.game;
+
+        const btnW =
+            Math.min(
+                this.ui(260),
+                cardW * .6
+            );
+
+        const btnH =
+            this.ui(68);
+
+        const btnX =
+            cardX +
+            (cardW - btnW) / 2;
+
+        const btnY =
+            bottomY +
+            this.ui(40);
+
+        g.restartButton = {
+
+            x: btnX,
+            y: btnY,
+            width: btnW,
+            height: btnH
+
+        };
+
+        this.drawCard(
+
+            ctx,
+
+            btnX,
+
+            btnY,
+
+            btnW,
+
+            btnH,
+
+            "#4CAF50",
+
+            "#4CAF50"
+
+        );
+
+        ctx.save();
+
+        ctx.fillStyle = "white";
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.font =
+            `bold ${this.ui(26)}px Arial`;
+
+        ctx.fillText(
+
+            "🔄 เล่นอีกครั้ง",
+
+            btnX + btnW / 2,
+
+            btnY + btnH / 2
+
+        );
+
+        ctx.restore();
+
+    }
+
+    //----------------------------------
+    // Cloud
+    //----------------------------------
+
+    drawCloud(
+        ctx,
+        x,
+        y,
+        s
+    ) {
+
+        ctx.save();
+
+        ctx.fillStyle =
+            "rgba(255,255,255,.95)";
+
+        ctx.shadowColor =
+            "rgba(255,255,255,.35)";
+
+        ctx.shadowBlur =
+            this.ui(18);
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x - s * 3,
+            y + s * .35,
+            s * .75,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.arc(
+            x - s * 2,
+            y,
+            s,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.arc(
+            x - s,
+            y - s * .25,
+            s * 1.2,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.arc(
+            x,
+            y - s * .45,
+            s * 1.5,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.arc(
+            x + s,
+            y - s * .25,
+            s * 1.2,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.arc(
+            x + s * 2,
+            y,
+            s,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.arc(
+            x + s * 3,
+            y + s * .35,
+            s * .75,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+
+        ctx.restore();
+
+    }
+    }
+
+
