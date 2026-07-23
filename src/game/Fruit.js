@@ -1,138 +1,98 @@
-import {WORDS} from "../data/words.js";
+import { WORDS } from "../data/words.js";
 import Images from "./Images.js";
 
 export default class Fruit {
 
     constructor(game) {
-        this.active = false;
 
         this.game = game;
 
-        this.size = Math.max(
-    60,
-    Math.min(
-        this.game.width * 0.07,
-        100
-    )
-);
-
+        this.active = false;
         this.dragging = false;
+
+        this.word = "";
+        this.correct = false;
+        this.image = null;
+
+        this.slot = null;
 
         this.rotation = 0;
 
         this.floatTime = Math.random() * Math.PI * 2;
-
         this.floatOffset = Math.random() * Math.PI * 2;
 
         this.glow = 10;
+        this.speed = 1;
+
+        this.size = Math.max(
+            60,
+            Math.min(
+                this.game.width * 0.07,
+                100
+            )
+        );
+
         this.x = -200;
         this.y = -200;
 
-        this.correct = false;
-        this.word = "";
-        
-        
+        this.scale = 0;
 
     }
 
-    //-----------------------------------
-    // สุ่มผลไม้ใหม่
-    //-----------------------------------
+    //----------------------------------
+    // รีเซ็ตผลไม้
+    //----------------------------------
 
     reset() {
 
         const item =
             WORDS[
                 Math.floor(
-                    Math.random() * WORDS.length
+                    Math.random() *
+                    WORDS.length
                 )
             ];
 
         this.word = item.word;
         this.correct = item.correct;
         this.image = Images[item.image];
+
         this.dragging = false;
 
-this.floatTime = Math.random() * Math.PI * 2;
+        this.slot = null;
 
-this.floatOffset = Math.random() * Math.PI * 2;
-this.speed =
-
-    this.game.height * 0.0015
-
-    +
-
-    Math.random() * 0.5;
-this.size = Math.max(
-    60,
-    Math.min(
-        this.game.width * 0.07,
-        100
-    )
-);
-        const margin = 100;
-
-if (this.game.fruits) {
-
-    let ok = false;
-
-    while (!ok) {
-
-        ok = true;
-
-        const topArea = this.game.height * 0.15;
-        const playArea = this.game.height * 0.45;
-
-        this.x =
-            margin +
+        this.floatTime =
             Math.random() *
-            (this.game.width - margin * 2 - this.size);
+            Math.PI *
+            2;
 
-        this.y =
-    topArea +
-    Math.random() * playArea;
+        this.floatOffset =
+            Math.random() *
+            Math.PI *
+            2;
 
-        for (const fruit of this.game.fruits) {
+        this.speed =
+            this.game.height * 0.0015 +
+            Math.random() * 0.5;
 
-            if (fruit === this) continue;
+        this.rotation =
+            (Math.random() - 0.5) * 0.35;
 
-            const dx = this.x - fruit.x;
-            const dy = this.y - fruit.y;
+        this.size = Math.max(
+            60,
+            Math.min(
+                this.game.width * 0.07,
+                100
+            )
+        );
 
-            if (Math.sqrt(dx * dx + dy * dy) < 120) {
-
-                ok = false;
-                break;
-
-            }
-
-        }
-
-    }
-
-} else {
-    const topArea = this.game.height * 0.15;
-    const playArea = this.game.height * 0.45;
-
-    this.x =
-        margin +
-        Math.random() *
-        (this.game.width - margin * 2 - this.size);
-
-    this.y =
-    topArea +
-    Math.random() * playArea;
-
-}
-
-this.rotation =
-    (Math.random() - 0.5) * 0.4;
+        this.scale = 0;
 
     }
 
-    //-----------------------------------
+    //----------------------------------
     // ตรวจว่าคลิกโดนไหม
-    //-----------------------------------
+    //----------------------------------
 
     isInside(x, y) {
 
@@ -147,129 +107,159 @@ this.rotation =
 
     }
 
-    //-----------------------------------
+    //----------------------------------
     // Update
-    //-----------------------------------
+    //----------------------------------
 
     update() {
+
         if (!this.active) return;
-        // ลอยเบา ๆ
-    this.floatTime += 0.05;
 
-    // ถ้าไม่ได้ถูกลาก ให้ตกลงมา
-    if (!this.dragging) {
+        if (this.scale < 1) {
 
-        this.y += this.speed;
+            this.scale += 0.08;
+
+        }
+
+        this.floatTime += 0.05;
+
+        if (!this.dragging) {
+
+            this.y += this.speed;
+
+        }
+
+        if (this.y > this.game.height + this.size) {
+
+            this.active = false;
+
+            this.releaseSlot();
+
+        }
 
     }
 
-    // หลุดจอด้านล่าง
-    if (this.y > this.game.height + this.size) {
+    //----------------------------------
+    // คืน Slot
+    //----------------------------------
 
-        this.active = false;
+    releaseSlot() {
+
+        if (this.slot) {
+
+            this.slot.fruit = null;
+            this.slot = null;
+
+        }
 
     }
 
-
-
-    }
-        //-----------------------------------
+    //----------------------------------
     // Draw
-    //-----------------------------------
+    //----------------------------------
 
     draw(ctx) {
 
-    if (!this.active) return;
+        if (!this.active) return;
 
-    const floatY =
-        Math.sin(
-            this.floatTime +
-            this.floatOffset
-        ) * 8;
+        const floatY =
+            Math.sin(
+                this.floatTime +
+                this.floatOffset
+            ) * 8;
 
-    //---------------------------------
-    // วาดรูปผลไม้
-    //---------------------------------
+        ctx.save();
 
-    ctx.save();
+        ctx.translate(
 
-    const drawX = this.x;
-    const drawY = this.y + floatY;
+            this.x + this.size / 2,
 
-    ctx.translate(
-        drawX + this.size / 2,
-        drawY + this.size / 2
-    );
-
-    ctx.rotate(this.rotation);
-
-    if (this.dragging) {
-
-        ctx.shadowColor = "#FFD700";
-        ctx.shadowBlur = 28;
-
-    } else {
-
-        ctx.shadowColor = "#FFFFFF";
-        ctx.shadowBlur = this.glow;
-
-    }
-
-    if (this.image && this.image.complete) {
-
-        ctx.drawImage(
-
-            this.image,
-
-            -this.size / 2,
-
-            -this.size / 2,
-
-            this.size,
-
-            this.size
+            this.y + floatY + this.size / 2
 
         );
 
+        ctx.scale(
+
+            this.scale,
+
+            this.scale
+
+        );
+
+        ctx.rotate(this.rotation);
+
+        if (this.dragging) {
+
+            ctx.shadowColor = "#FFD700";
+            ctx.shadowBlur = 28;
+
+        } else {
+
+            ctx.shadowColor = "#FFFFFF";
+            ctx.shadowBlur = this.glow;
+
+        }
+
+        if (this.image?.complete) {
+
+            ctx.drawImage(
+
+                this.image,
+
+                -this.size / 2,
+
+                -this.size / 2,
+
+                this.size,
+
+                this.size
+
+            );
+
+        }
+
+        ctx.restore();
+
+        ctx.save();
+
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = "#222";
+
+        const textSize = Math.max(
+
+            18,
+
+            Math.min(
+
+                this.size * 0.34,
+
+                28
+
+            )
+
+        );
+
+        ctx.font = `bold ${textSize}px Arial`;
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+
+        ctx.fillText(
+
+            this.word,
+
+            this.x + this.size / 2,
+
+            this.y +
+            this.size +
+            floatY +
+            8
+
+        );
+
+        ctx.restore();
+
     }
 
-    ctx.restore();
-
-    //---------------------------------
-    // วาดชื่อผลไม้
-    //---------------------------------
-
-    ctx.save();
-
-    ctx.shadowBlur = 0;
-
-    ctx.fillStyle = "#222";
-
-    const textSize = Math.max(
-        18,
-        Math.min(
-            this.size * 0.34,
-            28
-        )
-    );
-
-    ctx.font = `bold ${textSize}px Arial`;
-
-    ctx.textAlign = "center";
-
-    ctx.textBaseline = "top";
-
-    ctx.fillText(
-
-        this.word,
-
-        this.x + this.size / 2,
-
-        this.y + this.size + floatY + 8
-
-    );
-
-    ctx.restore();
-
-}
 }

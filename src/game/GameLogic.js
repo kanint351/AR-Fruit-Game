@@ -3,8 +3,10 @@ export default class GameLogic {
     constructor(game) {
 
         this.game = game;
+
         this.spawnTimer = 0;
         this.spawnDelay = 700;
+        
 
     
 
@@ -33,12 +35,19 @@ export default class GameLogic {
 
     g.lives.reset();
 
-    this.spawnTimer = performance.now();
+    g.createSpawnSlots();
 
     for (const fruit of g.fruits) {
 
+        fruit.releaseSlot();
         fruit.active = false;
-        fruit.dragging = false;
+
+    }
+
+    // สร้างผลไม้เริ่มต้น
+    for (let i = 0; i < g.fruits.length; i++) {
+
+        this.spawnFruit();
 
     }
 
@@ -64,13 +73,25 @@ export default class GameLogic {
 
     g.lives.reset();
 
+    g.createSpawnSlots();
+
     for (const fruit of g.fruits) {
 
-        fruit.active = false;
-        fruit.dragging = false;
-        fruit.reset();
+        fruit.releaseSlot();
+
 
     }
+    for (const fruit of g.fruits) {
+
+    fruit.releaseSlot();
+
+}
+
+g.createSpawnSlots();
+
+this.spawnTimer = performance.now();
+
+this.start();
 
     this.start();
 
@@ -93,14 +114,23 @@ export default class GameLogic {
         //-----------------
 
         g.timer.update();
+
         const now = performance.now();
 
-if (now - this.spawnTimer >= this.spawnDelay) {
+if (!this.spawnTimer) {
+
+    this.spawnTimer = now;
+
+}
+
+if (now - this.spawnTimer > 700) {
 
     this.spawnFruit();
 
     this.spawnTimer = now;
+
 }
+        
 
         //-----------------
         // Fruits
@@ -147,13 +177,101 @@ if (now - this.spawnTimer >= this.spawnDelay) {
     }
 spawnFruit() {
 
-    const fruit = this.game.fruits.find(
-        f => !f.active
-    );
+    const g = this.game;
+
+    const fruit =
+        g.fruits.find(f => !f.active);
 
     if (!fruit) return;
 
     fruit.reset();
+
+    //----------------------------------
+    // Smart Spawn
+    //----------------------------------
+
+    const freeSlots =
+        g.spawnSlots.filter(
+            s => s.fruit === null
+        );
+
+    if (freeSlots.length === 0) {
+
+    fruit.active = false;
+
+    return;
+
+}
+
+    let bestSlot = null;
+    let bestScore = -Infinity;
+
+    for (const slot of freeSlots) {
+
+        let minDistance = Infinity;
+
+        for (const other of g.fruits) {
+
+            if (
+                !other.active ||
+                !other.slot
+            ) continue;
+
+            const dx =
+                slot.x - other.slot.x;
+
+            const dy =
+                slot.y - other.slot.y;
+
+            const d =
+                Math.hypot(dx, dy);
+
+            if (d < minDistance) {
+
+                minDistance = d;
+
+            }
+
+        }
+
+        if (minDistance === Infinity) {
+
+            minDistance = 99999;
+
+        }
+
+        // เพิ่มความสุ่มเล็กน้อย
+        minDistance +=
+            Math.random() * 30;
+
+        if (minDistance > bestScore) {
+
+            bestScore = minDistance;
+            bestSlot = slot;
+
+        }
+            }
+
+    //----------------------------------
+    // วางผลไม้ลง Slot ที่ดีที่สุด
+    //----------------------------------
+
+    if (!bestSlot) return;
+
+    bestSlot.fruit = fruit;
+
+    fruit.slot = bestSlot;
+
+    fruit.x =
+        bestSlot.x -
+        fruit.size / 2;
+
+    fruit.y =
+        bestSlot.y -
+        fruit.size / 2;
+        fruit.dragging = false;
+
+fruit.scale = 0;
 
     fruit.active = true;
 
@@ -165,6 +283,12 @@ spawnFruit() {
     gameOver() {
 
     const g = this.game;
+
+    for (const fruit of g.fruits) {
+
+    fruit.releaseSlot();
+
+}
 
     g.gameOver = true;
 

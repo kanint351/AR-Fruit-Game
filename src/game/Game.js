@@ -70,6 +70,8 @@ this.bindResize();
 
 this.loop();
 
+
+
 }
 
     
@@ -119,6 +121,7 @@ this.loop();
     if (this.leftBasket) {
 
         this.layout();
+        this.createSpawnSlots();
 
     }
 
@@ -258,7 +261,77 @@ for (let i = 0; i < fruitCount; i++) {
     this.fruits.push(new Fruit(this));
 
 }
+
+
+
+
     
+}
+
+createSpawnSlots() {
+
+    const fruitSize = Math.max(
+        60,
+        Math.min(this.width * 0.07, 100)
+    );
+
+    const margin = fruitSize * 0.8;
+
+    const top = this.height * 0.18;
+    const bottom = this.height * 0.60;
+
+    const playWidth =
+        this.width - margin * 2;
+
+    const playHeight =
+        bottom - top;
+
+    // ระยะห่างขั้นต่ำของผลไม้
+    const spacing =
+        fruitSize * 1.8;
+
+    const cols = Math.max(
+        2,
+        Math.floor(playWidth / spacing)
+    );
+
+    const rows = Math.max(
+        2,
+        Math.floor(playHeight / spacing)
+    );
+
+    const gapX =
+        playWidth / cols;
+
+    const gapY =
+        playHeight / rows;
+
+    this.spawnSlots = [];
+
+    for (let r = 0; r < rows; r++) {
+
+        for (let c = 0; c < cols; c++) {
+
+            this.spawnSlots.push({
+
+                x:
+                    margin +
+                    gapX * c +
+                    gapX / 2,
+
+                y:
+                    top +
+                    gapY * r +
+                    gapY / 2,
+
+                fruit: null
+
+            });
+
+        }
+
+    }
+
 }
 startGame() {
 

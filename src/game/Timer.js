@@ -1,38 +1,33 @@
 export default class Timer {
 
-    constructor(game, seconds = 60) {
+    constructor(game, seconds) {
 
-    this.game = game;
+        this.game = game;
 
-    this.startTime = seconds;
+        this.time = seconds;
+        this.max = seconds;
 
-    this.time = seconds;
+        this.running = false;
 
-    this.running = false;
-
-    this.lastTick = 0;
-
-}
-
-    start() {
-
-        this.running = true;
-
-        this.lastTick = performance.now();
+        this.lastTime = 0;
 
     }
 
-    stop() {
+    reset(seconds = this.max) {
 
+        this.time = seconds;
         this.running = false;
 
     }
 
-    reset(seconds = this.startTime) {
+    start() {
 
-        this.startTime = seconds;
+        this.running = true;
+        this.lastTime = performance.now();
 
-        this.time = seconds;
+    }
+
+    stop() {
 
         this.running = false;
 
@@ -44,15 +39,11 @@ export default class Timer {
 
         const now = performance.now();
 
-        if (now - this.lastTick >= 1000) {
+        if (now - this.lastTime >= 1000) {
 
-            this.lastTick += 1000;
+            this.time--;
 
-            if (this.time > 0) {
-
-                this.time--;
-
-            }
+            this.lastTime += 1000;
 
         }
 
@@ -66,144 +57,204 @@ export default class Timer {
 
     draw(ctx) {
 
-        const margin = Math.max(
-            20,
-            this.game.width * 0.02
-        );
+    const g = this.game;
 
-        const fontSize = Math.max(
-            24,
-            Math.min(
-                this.game.width * 0.03,
-                42
-            )
-        );
+    //----------------------------------
+    // Responsive
+    //----------------------------------
 
-        const boxWidth = Math.min(
+    const margin = Math.max(
+        18,
+        g.width * 0.02
+    );
 
-    320,
+    const panelW = Math.min(
+        320,
+        g.width * 0.23
+    );
 
-    Math.max(
+    const panelH = Math.max(
+        90,
+        g.height * 0.11
+    );
 
-        180,
+    const x =
+        g.width -
+        panelW -
+        margin;
 
-        this.game.width * 0.22
+    const y = margin;
 
-    )
+    //----------------------------------
+    // สีตามเวลา
+    //----------------------------------
 
-);
+    let border = "#42A5F5";
+    let bg = "rgba(255,255,255,.95)";
 
-        const boxHeight = Math.max(
+    if (this.time <= 20) {
 
-    54,
+        border = "#FF9800";
 
-    fontSize + 24
+    }
 
-);
+    if (this.time <= 10) {
 
-        ctx.save();
+        border = "#F44336";
+        bg = "#FFEBEE";
 
-        ctx.shadowColor = "rgba(0,0,0,.3)";
-        ctx.shadowBlur = 12;
+    }
 
-        //------------------------------------
-        // สีพื้น
-        //------------------------------------
+    //----------------------------------
+    // Card
+    //----------------------------------
 
-        let bg = "rgba(255,255,255,.85)";
-        let border = "#2196F3";
+    ctx.save();
 
-        if (this.time <= 10) {
+    ctx.shadowColor = "rgba(0,0,0,.18)";
+    ctx.shadowBlur = 16;
 
-            bg = "#FFEBEE";
-            border = "#F44336";
+    ctx.fillStyle = bg;
 
-        }
+    ctx.beginPath();
 
-        ctx.fillStyle = bg;
+    ctx.roundRect(
+        x,
+        y,
+        panelW,
+        panelH,
+        22
+    );
+
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+
+    ctx.lineWidth = 3;
+
+    ctx.strokeStyle = border;
+
+    ctx.stroke();
+
+    //----------------------------------
+    // Pulse ตอนเหลือ 10 วิ
+    //----------------------------------
+
+    let scale = 1;
+
+    if (this.time <= 10) {
+
+        scale =
+            1 +
+            Math.sin(
+                performance.now() / 120
+            ) * 0.08;
+
+    }
+
+    //----------------------------------
+    // Icon
+    //----------------------------------
+
+    const iconSize = Math.max(
+        30,
+        Math.min(
+            g.width * 0.03,
+            44
+        )
+    );
+
+    //----------------------------------
+    // Text
+    //----------------------------------
+
+    const textSize = Math.max(
+        24,
+        Math.min(
+            g.width * 0.028,
+            40
+        )
+    );
+
+    ctx.font = `${iconSize}px Arial`;
+
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+
+    ctx.fillText(
+        "⏰",
+        x + 22,
+        y + panelH / 2
+    );
+
+    //----------------------------------
+    // เวลา
+    //----------------------------------
+
+    ctx.save();
+
+    ctx.translate(
+        x + panelW - 26,
+        y + panelH / 2
+    );
+
+    ctx.scale(
+        scale,
+        scale
+    );
+
+    ctx.fillStyle =
+        this.time <= 10
+            ? "#D32F2F"
+            : "#222";
+
+    ctx.font =
+        `bold ${textSize}px Arial`;
+
+    ctx.textAlign = "right";
+
+    ctx.fillText(
+        `${this.time} วิ`,
+        0,
+        0
+    );
+
+    ctx.restore();
+
+    //----------------------------------
+    // กระพริบกรอบ
+    //----------------------------------
+
+    if (this.time <= 10) {
+
+        ctx.strokeStyle =
+            `rgba(244,67,54,${
+                0.2 +
+                Math.abs(
+                    Math.sin(
+                        performance.now()/120
+                    )
+                ) * .5
+            })`;
+
+        ctx.lineWidth = 6;
 
         ctx.beginPath();
 
         ctx.roundRect(
-
-            this.game.width - boxWidth - margin,
-
-            margin,
-
-            boxWidth,
-
-            boxHeight,
-
-            14
-
+            x - 3,
+            y - 3,
+            panelW + 6,
+            panelH + 6,
+            24
         );
-
-        ctx.fill();
-
-        ctx.shadowBlur = 0;
-
-        ctx.lineWidth = 2;
-
-        ctx.strokeStyle = border;
 
         ctx.stroke();
 
-        //------------------------------------
-        // ตัวหนังสือ
-        //------------------------------------
-
-        ctx.fillStyle =
-            this.time <= 10
-                ? "#D32F2F"
-                : "#222";
-
-        ctx.font =
-            `bold ${fontSize}px Arial`;
-
-        ctx.textAlign = "left";
-
-        ctx.fillText(
-
-            `⏰ ${this.time} วินาที`,
-
-            this.game.width -
-            boxWidth -
-            margin +
-            18,
-
-            margin +
-            fontSize +
-            6
-
-        );
-
-        //------------------------------------
-        // เตือนเมื่อเหลือ 10 วิ
-        //------------------------------------
-
-        if (this.time <= 10) {
-
-            ctx.font =
-                `bold ${fontSize * 0.7}px Arial`;
-
-            ctx.fillStyle = "#F44336";
-
-            ctx.textAlign = "center";
-
-ctx.font = `bold ${fontSize * 0.65}px Arial`;
-
-ctx.textAlign = "center";
-
-ctx.fillText(
-    "รีบหน่อย!",
-    this.game.width - boxWidth / 2 - margin,
-    margin + fontSize + 30
-);
-
-        }
-
-        ctx.restore();
-
     }
+
+    ctx.restore();
+
+}
 
 }

@@ -62,9 +62,12 @@ ctx.fillRect(
     g.height
 );
 
-this.drawCloud(ctx,80,90,28);
-this.drawCloud(ctx,320,60,24);
-this.drawCloud(ctx,g.width-180,100,35);
+this.drawCloud(
+    ctx,
+    g.width * 0.5,
+    85,
+    Math.min(g.width * 0.05, 38)
+);
 
         //---------------------------------
 // พื้นหญ้า Responsive
@@ -76,35 +79,46 @@ const grassHeight = Math.max(
 );
 
 const grass = ctx.createLinearGradient(
-
     0,
-
-    g.height-grassHeight,
-
+    g.height - grassHeight,
     0,
-
     g.height
-
 );
+
+grass.addColorStop(0, "#7ED957");
+grass.addColorStop(1, "#43A047");
 
 ctx.fillStyle = grass;
 
 ctx.fillRect(
-
     0,
-
     g.height - grassHeight,
-
     g.width,
-
     grassHeight
-
 );
 
-grass.addColorStop(0,"#7ED957");
-grass.addColorStop(1,"#43A047");
+ctx.strokeStyle = "#66BB6A";
+ctx.lineWidth = 2;
 
-ctx.fillStyle = grass;
+for (let x = 0; x < g.width; x += 8) {
+
+    const h = Math.random() * 12 + 8;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x,
+        g.height - grassHeight + 20
+    );
+
+    ctx.lineTo(
+        x + 2,
+        g.height - grassHeight + 20 - h
+    );
+
+    ctx.stroke();
+
+}
 
         g.leftBasket.draw(ctx);
         g.rightBasket.draw(ctx);
@@ -127,34 +141,54 @@ ctx.fillStyle = grass;
 
         g.score.draw(ctx);
         g.timer.draw(ctx);
-        g.lives.draw(ctx);
+        
+        
         if (g.score.combo >= 3) {
 
     ctx.save();
 
-    const fontSize = Math.max(
+    const isMobile = g.width < 700;
+
+const fontSize = isMobile
+    ? Math.max(18, g.width * 0.05)
+    : Math.max(
         28,
         Math.min(g.width * 0.04, 54)
     );
 
-    const comboY = Math.max(
-        60,
-        g.height * 0.08
-    );
+    const comboY =
+    g.height *
+    (g.width < 700 ? 0.14 : 0.09);
 
     ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
 
-    let text = `🔥 COMBO x${g.score.combo}`;
+    let text;
+
+if (g.width < 700) {
+
+    text = `🔥 x${g.score.combo}`;
+
+} else {
+
+    text = `🔥 COMBO x${g.score.combo}`;
+
+}
 
     if (g.score.combo >= 10) {
 
-        text = `👑 PERFECT x${g.score.combo}`;
+        text =
+    g.width < 700
+        ? `👑 x${g.score.combo}`
+        : `👑 PERFECT x${g.score.combo}`;
         ctx.fillStyle = "#E91E63";
 
     } else if (g.score.combo >= 5) {
 
-        text = `⚡ GREAT x${g.score.combo}`;
+        text =
+    g.width < 700
+        ? `⚡ x${g.score.combo}`
+        : `⚡ GREAT x${g.score.combo}`;
         ctx.fillStyle = "#FF9800";
 
     } else {
@@ -170,6 +204,8 @@ ctx.fillStyle = grass;
 
     ctx.strokeStyle = "#FFFFFF";
     ctx.lineWidth = 4;
+
+    ctx.textBaseline = "middle";
 
     ctx.strokeText(
         text,
@@ -268,15 +304,22 @@ ctx.fillRect(
         ctx.textBaseline="middle";
         ctx.fillStyle="white";
 
-        ctx.font=`bold ${
-            Math.max(
-                38,
-                Math.min(
-                    g.width*0.06,
-                    72
-                )
+        const titleSize =
+    g.width < 700
+        ? Math.max(
+            34,
+            g.width * 0.08
+        )
+        : Math.max(
+            38,
+            Math.min(
+                g.width * 0.06,
+                72
             )
-        }px Arial`;
+        );
+
+ctx.font =
+    `bold ${titleSize}px Arial`;
 
         ctx.fillText(
             "🏆 จบเกม",
@@ -306,18 +349,29 @@ this.drawRestartButton(ctx, bottomY);
                 total*100
             );
 
-        const textSize=Math.max(
+        const textSize =
+    g.width < 700
+        ? Math.max(
+            16,
+            g.width * 0.05
+        )
+        : Math.max(
             20,
             Math.min(
-                g.width*0.028,
+                g.width * 0.028,
                 36
             )
         );
 
-        const line=textSize+18;
+        const line =
+    textSize +
+    (g.width < 700 ? 10 : 18);
 
-        const startY=
-            g.height/2-40;
+        const startY =
+    g.height *
+    (g.width < 700
+        ? 0.23
+        : 0.42);
 
         ctx.font=`${textSize}px Arial`;
         ctx.fillStyle="white";
@@ -369,14 +423,20 @@ this.drawRestartButton(ctx, bottomY);
 
         const g=this.game;
 
-        const buttonWidth=Math.min(
+        const buttonWidth =
+    g.width < 700
+        ? g.width * 0.65
+        : Math.min(
             260,
-            g.width*0.35
+            g.width * 0.35
         );
 
-        const buttonHeight=Math.max(
+        const buttonHeight =
+    g.width < 700
+        ? 60
+        : Math.max(
             55,
-            g.height*0.08
+            g.height * 0.08
         );
 
         g.restartButton={
@@ -450,22 +510,40 @@ this.drawRestartButton(ctx, bottomY);
 
     }
 
-    drawCloud(ctx,x,y,s){
+    drawCloud(ctx, x, y, s) {
 
     ctx.save();
 
-    ctx.fillStyle="rgba(255,255,255,.9)";
+    ctx.fillStyle = "rgba(255,255,255,.95)";
+    ctx.shadowColor = "rgba(255,255,255,.35)";
+    ctx.shadowBlur = 18;
 
     ctx.beginPath();
 
-    ctx.arc(x,y,s,0,Math.PI*2);
-    ctx.arc(x+s*.8,y-s*.3,s*.9,0,Math.PI*2);
-    ctx.arc(x+s*1.7,y,s,0,Math.PI*2);
+    // ซ้ายสุด
+    ctx.arc(x - s * 3.0, y + s * 0.35, s * 0.75, 0, Math.PI * 2);
+
+    // ซ้าย
+    ctx.arc(x - s * 2.1, y, s * 0.95, 0, Math.PI * 2);
+
+    // กลางซ้าย
+    ctx.arc(x - s, y - s * 0.25, s * 1.2, 0, Math.PI * 2);
+
+    // กลางใหญ่
+    ctx.arc(x, y - s * 0.45, s * 1.55, 0, Math.PI * 2);
+
+    // กลางขวา
+    ctx.arc(x + s, y - s * 0.2, s * 1.2, 0, Math.PI * 2);
+
+    // ขวา
+    ctx.arc(x + s * 2.1, y, s * 0.95, 0, Math.PI * 2);
+
+    // ขวาสุด
+    ctx.arc(x + s * 3.0, y + s * 0.35, s * 0.75, 0, Math.PI * 2);
 
     ctx.fill();
 
     ctx.restore();
 
 }
-
 }

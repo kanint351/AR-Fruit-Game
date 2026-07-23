@@ -87,127 +87,155 @@ export default class Score {
 
     draw(ctx) {
 
-        const margin = Math.max(
-            20,
-            this.game.width * 0.02
-        );
+    const g = this.game;
 
-        const fontSize = Math.max(
-            24,
-            Math.min(
-                this.game.width * 0.03,
-                42
-            )
-        );
+    const panelW = Math.min(
+        g.width * 0.24,
+        340
+    );
 
-        const boxWidth = Math.min(
-            this.game.width * 0.28,
-            330
-        );
+    const panelH = Math.max(
+        170,
+        g.height * 0.20
+    );
 
-        const boxHeight = 90;
+    const margin = Math.max(
+        18,
+        g.width * 0.02
+    );
 
-        ctx.save();
+    const radius = 22;
 
-        ctx.shadowColor = "rgba(0,0,0,.25)";
-        ctx.shadowBlur = 12;
+    ctx.save();
 
-        const bg = ctx.createLinearGradient(
-            margin,
-            margin,
-            margin,
-            margin + boxHeight
-        );
+    // Shadow
+    ctx.shadowColor = "rgba(0,0,0,.18)";
+    ctx.shadowBlur = 16;
 
-        bg.addColorStop(0, "#FFFFFF");
-        bg.addColorStop(1, "#F2FFF2");
+    // Background
+    ctx.fillStyle = "rgba(255,255,255,.95)";
 
-        ctx.fillStyle = bg;
+    ctx.beginPath();
 
-        ctx.beginPath();
+    ctx.roundRect(
+        margin,
+        margin,
+        panelW,
+        panelH,
+        radius
+    );
 
-        ctx.roundRect(
-            margin,
-            margin,
-            boxWidth,
-            boxHeight,
-            16
-        );
+    ctx.fill();
 
-        ctx.fill();
+    // Border
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#66BB6A";
+    ctx.stroke();
 
-        ctx.shadowBlur = 0;
+    //------------------------------------
 
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "#2ECC71";
-        ctx.stroke();
+    const left = margin + 22;
 
-        //-----------------------
-        // คะแนน
-        //-----------------------
+    const valueX =
+        margin +
+        panelW -
+        22;
 
-        this.scoreScale +=
-            (1 - this.scoreScale) * 0.15;
+    const line =
+        panelH / 4.8;
 
-        ctx.translate(
-            margin + boxWidth / 2,
-            margin + boxHeight / 2
-        );
+    let y =
+        margin + line;
 
-        ctx.scale(
-            this.scoreScale,
-            this.scoreScale
-        );
+    const font = Math.max(
+        22,
+        Math.min(
+            g.width * 0.022,
+            34
+        )
+    );
 
-        ctx.translate(
-            -(margin + boxWidth / 2),
-            -(margin + boxHeight / 2)
-        );
+    ctx.font = `bold ${font}px Arial`;
+    ctx.fillStyle = "#222";
 
-        ctx.font = `bold ${fontSize}px Arial`;
-        ctx.fillStyle = "#222";
-        ctx.textAlign = "left";
+    ctx.textAlign = "left";
 
-        ctx.fillText(
-            `⭐ คะแนน ${this.value}`,
-            margin + 18,
-            margin + 42
-        );
+    ctx.fillText(
+        "⭐ คะแนน",
+        left,
+        y
+    );
 
-        //-----------------------
-        // Combo
-        //-----------------------
+    ctx.textAlign = "right";
 
-        ctx.font = `bold ${fontSize * 0.7}px Arial`;
-        ctx.fillStyle = "#FF9800";
+    ctx.fillText(
+        this.value,
+        valueX,
+        y
+    );
 
-        ctx.fillText(
-            `🔥 x${this.combo}`,
-            margin + boxWidth - 90,
-            margin + 74
-        );
+    //------------------------------------
 
-        ctx.restore();
+    y += line;
 
-        //-----------------------
-        // High Score
-        //-----------------------
+    ctx.textAlign = "left";
 
-        ctx.save();
+    ctx.fillStyle = "#FF9800";
 
-        ctx.font = `bold ${fontSize * 0.6}px Arial`;
-        ctx.fillStyle = "#666";
-        ctx.textAlign = "left";
+    ctx.fillText(
+        "🔥 Combo",
+        left,
+        y
+    );
 
-        const heartY = margin + 105;
-        ctx.fillText(
-            `🏆 สูงสุด ${this.highScore}`,
-            margin + 18,
-            margin + boxHeight + 78
-        );
+    ctx.textAlign = "right";
 
-        ctx.restore();
+    ctx.fillText(
+        "x" + this.combo,
+        valueX,
+        y
+    );
+
+    //------------------------------------
+
+    y += line;
+
+    ctx.textAlign = "left";
+
+    let hearts = "";
+
+    for (let i = 0; i < g.lives.max; i++) {
+
+        hearts +=
+            i < g.lives.value
+                ? "❤️ "
+                : "🤍 ";
 
     }
+
+    ctx.fillStyle = "#000";
+
+    ctx.fillText(
+        hearts,
+        left,
+        y
+    );
+
+    //------------------------------------
+
+    y += line;
+
+    ctx.fillStyle = "#666";
+
+    ctx.fillText(
+        "🏆 สูงสุด " + this.highScore,
+        left,
+        y
+    );
+
+    ctx.restore();
+
+}
 
 }
