@@ -296,7 +296,7 @@ boxWidth * 0.028
         const boxW = Math.min(520, g.width * 0.8);
         const boxH = Math.min(
     g.height * 0.45,
-    340
+    440
 );
 
         const boxX = (g.width - boxW) / 2;
@@ -343,11 +343,28 @@ boxWidth * 0.028
     )
 )}px Arial`;
 
-        ctx.fillText(
-            `คะแนน ${g.score.value}`,
-            g.width / 2,
-            boxY + 145
-        );
+        const line = 45;
+
+ctx.fillStyle = "#333";
+ctx.font = "bold 30px Arial";
+
+ctx.fillText(
+    `⭐ คะแนน ${g.score.value}`,
+    g.width / 2,
+    boxY + 135
+);
+
+ctx.fillText(
+    `🏆 สูงสุด ${g.score.highScore}`,
+    g.width / 2,
+    boxY + 135 + line
+);
+
+ctx.fillText(
+    `🔥 Combo สูงสุด ${g.score.maxCombo}`,
+    g.width / 2,
+    boxY + 135 + line * 2
+);
 
         const bw = Math.min(
     boxW * 0.6,
@@ -360,10 +377,13 @@ const bh = Math.max(
 );
 
         const bx = g.width / 2 - bw / 2;
-        const by = boxY + 210;
+        const by = boxY + 290;
+        
 
         this.restartButton.x = bx;
-        this.restartButton.y = by;
+this.restartButton.y = by;
+this.restartButton.width = bw;
+this.restartButton.height = bh;
 
         ctx.fillStyle = "#2ECC71";
 
@@ -383,14 +403,17 @@ const bh = Math.max(
 22,
 bh * 0.42
 )}px Arial`;
+        ctx.textBaseline = "middle";
 
-        ctx.fillText(
-            "🔄 เล่นอีกครั้ง",
-            g.width / 2,
-            by + 45
-        );
+ctx.fillText(
+    "🔄 เล่นอีกครั้ง",
+    g.width / 2,
+    by + bh / 2
+);
 
-        ctx.textAlign = "left";
+ctx.textBaseline = "alphabetic";
+
+        
 
     }
 

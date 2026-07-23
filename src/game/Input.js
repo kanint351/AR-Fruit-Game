@@ -159,7 +159,7 @@ export default class Input {
         // กดปุ่มเล่นใหม่
 if (g.gameOver) {
 
-    const b = g.restartButton;
+    const b = g.ui.restartButton;
 
     if (
         b &&
@@ -175,11 +175,11 @@ if (g.gameOver) {
     }
 
 }
-        if (!this.game.started) {
+        if (!this.game.started && !this.game.gameOver) {
 
-            this.game.startGame();
+    this.game.startGame();
 
-        }
+}
 
         for (const fruit of g.fruits) {
 

@@ -8,40 +8,63 @@ export default class Renderer {
 
     render() {
 
-        const ctx = this.game.ctx;
+    const g = this.game;
+    const ctx = g.ctx;
 
-        ctx.clearRect(
-            0,
-            0,
-            this.game.width,
-            this.game.height
-        );
+    ctx.imageSmoothingEnabled=true;
 
-        if (!this.game.started) {
+    ctx.clearRect(
+        0,
+        0,
+        g.width,
+        g.height
+    );
 
-            this.drawStart();
-            return;
+    if (!g.started) {
 
-        }
-
-        if (this.game.gameOver) {
-
-            this.drawGameOver();
-            return;
-
-        }
-
-        this.drawGame();
+        g.ui.drawStart();
+        return;
 
     }
+
+    if (g.gameOver) {
+
+        g.ui.drawGameOver();
+        return;
+
+    }
+
+    this.drawGame();
+
+}
 
     drawGame() {
 
         const g = this.game;
         const ctx = g.ctx;
 
-        ctx.fillStyle = "#87CEEB";
-        ctx.fillRect(0,0,g.width,g.height);
+        const sky = ctx.createLinearGradient(
+    0,
+    0,
+    0,
+    g.height
+);
+
+sky.addColorStop(0, "#7DD3FC");
+sky.addColorStop(.6, "#BAE6FD");
+sky.addColorStop(1, "#E0F7FF");
+
+ctx.fillStyle = sky;
+ctx.fillRect(
+    0,
+    0,
+    g.width,
+    g.height
+);
+
+this.drawCloud(ctx,80,90,28);
+this.drawCloud(ctx,320,60,24);
+this.drawCloud(ctx,g.width-180,100,35);
 
         //---------------------------------
 // พื้นหญ้า Responsive
@@ -52,7 +75,19 @@ const grassHeight = Math.max(
     g.height * 0.12
 );
 
-ctx.fillStyle = "#7ED957";
+const grass = ctx.createLinearGradient(
+
+    0,
+
+    g.height-grassHeight,
+
+    0,
+
+    g.height
+
+);
+
+ctx.fillStyle = grass;
 
 ctx.fillRect(
 
@@ -65,6 +100,11 @@ ctx.fillRect(
     grassHeight
 
 );
+
+grass.addColorStop(0,"#7ED957");
+grass.addColorStop(1,"#43A047");
+
+ctx.fillStyle = grass;
 
         g.leftBasket.draw(ctx);
         g.rightBasket.draw(ctx);
@@ -97,40 +137,50 @@ ctx.fillRect(
         Math.min(g.width * 0.04, 54)
     );
 
+    const comboY = Math.max(
+        60,
+        g.height * 0.08
+    );
+
     ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
-    ctx.shadowColor = "#FF9800";
-ctx.shadowBlur = 15;
-
-ctx.fillStyle = "#FFD54F";
-ctx.strokeStyle = "#ffffff";
-ctx.lineWidth = 3;
-
-
-
-
 
     let text = `🔥 COMBO x${g.score.combo}`;
 
     if (g.score.combo >= 10) {
 
         text = `👑 PERFECT x${g.score.combo}`;
+        ctx.fillStyle = "#E91E63";
 
     } else if (g.score.combo >= 5) {
 
         text = `⚡ GREAT x${g.score.combo}`;
+        ctx.fillStyle = "#FF9800";
+
+    } else {
+
+        ctx.fillStyle = "#FFD54F";
 
     }
+
+    ctx.shadowColor = ctx.fillStyle;
+    ctx.shadowBlur =
+    12 +
+    Math.sin(Date.now()/120)*6;
+
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 4;
+
     ctx.strokeText(
-    text,
-    g.width / 2,
-    70
-);
+        text,
+        g.width / 2,
+        comboY
+    );
 
     ctx.fillText(
         text,
         g.width / 2,
-        70
+        comboY
     );
 
     ctx.restore();
@@ -144,16 +194,24 @@ ctx.lineWidth = 3;
         const g=this.game;
         const ctx=g.ctx;
 
-        ctx.fillStyle="#87CEEB";
-        ctx.fillRect(0,0,g.width,g.height);
+        const sky = ctx.createLinearGradient(
+    0,
+    0,
+    0,
+    g.height
+);
 
-        ctx.fillStyle="#7ED957";
-        ctx.fillRect(
-            0,
-            g.height-110,
-            g.width,
-            110
-        );
+sky.addColorStop(0,"#7DD3FC");
+sky.addColorStop(.6,"#BAE6FD");
+sky.addColorStop(1,"#E0F7FF");
+
+ctx.fillStyle = sky;
+ctx.fillRect(
+    0,
+    0,
+    g.width,
+    g.height
+);
 
         ctx.textAlign="center";
 
@@ -391,5 +449,23 @@ this.drawRestartButton(ctx, bottomY);
         ctx.restore();
 
     }
+
+    drawCloud(ctx,x,y,s){
+
+    ctx.save();
+
+    ctx.fillStyle="rgba(255,255,255,.9)";
+
+    ctx.beginPath();
+
+    ctx.arc(x,y,s,0,Math.PI*2);
+    ctx.arc(x+s*.8,y-s*.3,s*.9,0,Math.PI*2);
+    ctx.arc(x+s*1.7,y,s,0,Math.PI*2);
+
+    ctx.fill();
+
+    ctx.restore();
+
+}
 
 }

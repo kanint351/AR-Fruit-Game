@@ -17,46 +17,64 @@ export default class GameLogic {
 
     start() {
 
-        const g = this.game;
+    const g = this.game;
 
-        g.started = true;
-        g.gameOver = false;
-        g.restartButton = null;
+    g.started = true;
+    g.gameOver = false;
 
-        g.score.reset();
+    g.dragFruit = null;
 
-        g.timer.reset(60);
-        g.timer.start();
-        g.lives.reset();
-        this.spawnTimer = performance.now();
-        for (const fruit of g.fruits) {
-            fruit.active = false;
-            g.effects.length = 0;
-            
+    g.effects.length = 0;
 
-        }
+    g.score.reset();
+
+    g.timer.reset(60);
+    g.timer.start();
+
+    g.lives.reset();
+
+    this.spawnTimer = performance.now();
+
+    for (const fruit of g.fruits) {
+
+        fruit.active = false;
+        fruit.dragging = false;
 
     }
 
+}
     //-----------------------------
     // รีสตาร์ต
     //-----------------------------
 
     restart() {
-        const g = this.game;
+
+    const g = this.game;
+
+    g.gameOver = false;
+    g.started = false;
+
+    g.dragFruit = null;
 
     g.effects.length = 0;
+
+    g.score.reset();
+
+    g.timer.reset(60);
+
+    g.lives.reset();
 
     for (const fruit of g.fruits) {
 
         fruit.active = false;
+        fruit.dragging = false;
         fruit.reset();
 
     }
 
-        this.start();
+    this.start();
 
-    }
+}
 
     //-----------------------------
     // อัปเดตเกม
