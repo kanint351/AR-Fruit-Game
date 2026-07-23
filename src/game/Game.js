@@ -338,10 +338,15 @@ createSpawnSlots() {
 
 }
 startGame() {
+
+    this.sound.unlock();
+
     this.sound.play(this.sound.click);
 
-this.sound.bgm.currentTime = 0;
-this.sound.bgm.play().catch(console.error);
+    this.sound.bgm.currentTime = 0;
+
+    this.sound.bgm.play()
+        .catch(err => console.log("BGM:", err));
 
     enterFullscreen();
 
